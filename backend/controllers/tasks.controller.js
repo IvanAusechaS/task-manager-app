@@ -1,29 +1,25 @@
 // Import required middleware and validation library
 import { requireAuth, validateRequest } from '../utils/decorators.js';
 import * as yup from 'yup';
-
-// Temporary storage for tasks (will be replaced with database)
-let tasks = [];
-let currentTaskId = 1;
+import Task from '../models/task.model.js';
+import User from '../models/user.model.js';
 
 // Define validation schema for task creation
 // Ensures all required fields are present and valid
 const createTaskSchema = yup.object().shape({
   title: yup.string().required(),
-  description: yup.string(),
-  dueDate: yup.date(),
-  priority: yup.string().oneOf(['low', 'medium', 'high']),
-  status: yup.string().oneOf(['pending', 'in_progress', 'completed']).default('pending')
+  detail: yup.string(),
+  date: yup.date().required(),
+  status: yup.string().oneOf(['Por hacer', 'Haciendo', 'Hecho']).default('Por hacer')
 });
 
 // Define validation schema for task updates
 // All fields are optional since it's a partial update
 const updateTaskSchema = yup.object().shape({
   title: yup.string(),
-  description: yup.string(),
-  dueDate: yup.date(),
-  priority: yup.string().oneOf(['low', 'medium', 'high']),
-  status: yup.string().oneOf(['pending', 'in_progress', 'completed'])
+  detail: yup.string(),
+  date: yup.date(),
+  status: yup.string().oneOf(['Por hacer', 'Haciendo', 'Hecho'])
 });
 
 /**
@@ -42,21 +38,31 @@ class TaskController {
       // Validate request body against schema
       await createTaskSchema.validate(req.body);
       const userId = req.user.userId;
-      const taskData = req.body;
+      const { title, detail, date, status } = req.body;
 
-      // Create new task object with metadata
-      const newTask = {
-        id: currentTaskId++,
-        userId,
-        ...taskData,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
+      // Create new task in database
+      const newTask = new Task({
+        title,
+        detail,
+        date,
+        status: status || 'Por hacer',
+        user: userId
+      });
 
-      tasks.push(newTask);
-      return res.status(201).json(newTask);
+      const savedTask = await newTask.save();
+      const populatedTask = await Task.findById(savedTask._id).populate('user', 'firstName lastName email');
+
+      res.status(201).json({
+        message: "Task created successfully",
+        task: populatedTask
+      });
+
     } catch (error) {
-      return res.status(400).json({ message: error.message });
+      if (error.name === 'ValidationError') {
+        return res.status(400).json({ message: error.message });
+      }
+      console.error('Create task error:', error);
+      res.status(500).json({ message: "Internal server error creating task" });
     }
   }
 
@@ -67,9 +73,19 @@ class TaskController {
    * @returns {Array} List of user's tasks
    */
   async getTasks(req, res) {
-    const userId = req.user.userId;
-    const userTasks = tasks.filter(task => task.userId === userId);
-    return res.status(200).json(userTasks);
+    try {
+      const userId = req.user.userId;
+      const userTasks = await Task.find({ user: userId }).populate('user', 'firstName lastName email');
+      
+      res.status(200).json({
+        message: "Tasks retrieved successfully",
+        tasks: userTasks
+      });
+
+    } catch (error) {
+      console.error('Get tasks error:', error);
+      res.status(500).json({ message: "Internal server error retrieving tasks" });
+    }
   }
 
   /**
@@ -79,17 +95,26 @@ class TaskController {
    * @returns {Object} Task details or error message
    */
   async getTaskById(req, res) {
-    const userId = req.user.userId;
-    const taskId = parseInt(req.params.id);
-    
-    // Find task that belongs to the authenticated user
-    const task = tasks.find(t => t.id === taskId && t.userId === userId);
-    
-    if (!task) {
-      return res.status(404).json({ message: 'Task not found' });
+    try {
+      const userId = req.user.userId;
+      const taskId = req.params.id;
+      
+      // Find task that belongs to the authenticated user
+      const task = await Task.findOne({ _id: taskId, user: userId }).populate('user', 'firstName lastName email');
+      
+      if (!task) {
+        return res.status(404).json({ message: 'Task not found' });
+      }
+      
+      res.status(200).json({
+        message: "Task retrieved successfully",
+        task
+      });
+
+    } catch (error) {
+      console.error('Get task by ID error:', error);
+      res.status(500).json({ message: "Internal server error retrieving task" });
     }
-    
-    return res.status(200).json(task);
   }
 
   /**
@@ -103,26 +128,31 @@ class TaskController {
       // Validate update data
       await updateTaskSchema.validate(req.body);
       const userId = req.user.userId;
-      const taskId = parseInt(req.params.id);
+      const taskId = req.params.id;
       const updateData = req.body;
 
-      // Find task index in array
-      const taskIndex = tasks.findIndex(t => t.id === taskId && t.userId === userId);
+      // Find and update task that belongs to the authenticated user
+      const updatedTask = await Task.findOneAndUpdate(
+        { _id: taskId, user: userId },
+        updateData,
+        { new: true, runValidators: true }
+      ).populate('user', 'firstName lastName email');
       
-      if (taskIndex === -1) {
+      if (!updatedTask) {
         return res.status(404).json({ message: 'Task not found' });
       }
 
-      // Update task with new data while preserving other fields
-      tasks[taskIndex] = {
-        ...tasks[taskIndex],
-        ...updateData,
-        updatedAt: new Date().toISOString()
-      };
+      res.status(200).json({
+        message: "Task updated successfully",
+        task: updatedTask
+      });
 
-      return res.status(200).json(tasks[taskIndex]);
     } catch (error) {
-      return res.status(400).json({ message: error.message });
+      if (error.name === 'ValidationError') {
+        return res.status(400).json({ message: error.message });
+      }
+      console.error('Update task error:', error);
+      res.status(500).json({ message: "Internal server error updating task" });
     }
   }
 
@@ -133,19 +163,25 @@ class TaskController {
    * @returns {Object} Success status or error message
    */
   async deleteTask(req, res) {
-    const userId = req.user.userId;
-    const taskId = parseInt(req.params.id);
+    try {
+      const userId = req.user.userId;
+      const taskId = req.params.id;
 
-    // Find task index in array
-    const taskIndex = tasks.findIndex(t => t.id === taskId && t.userId === userId);
-    
-    if (taskIndex === -1) {
-      return res.status(404).json({ message: 'Task not found' });
+      // Find and delete task that belongs to the authenticated user
+      const deletedTask = await Task.findOneAndDelete({ _id: taskId, user: userId });
+      
+      if (!deletedTask) {
+        return res.status(404).json({ message: 'Task not found' });
+      }
+
+      res.status(200).json({
+        message: "Task deleted successfully"
+      });
+
+    } catch (error) {
+      console.error('Delete task error:', error);
+      res.status(500).json({ message: "Internal server error deleting task" });
     }
-
-    // Remove task from array
-    tasks.splice(taskIndex, 1);
-    return res.status(204).send();
   }
 }
 

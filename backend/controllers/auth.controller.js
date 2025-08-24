@@ -4,17 +4,22 @@
  */
 
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import * as yup from 'yup';
+import User from '../models/user.model.js';
 import { requireAuth, validateRequest } from '../utils/decorators.js';
 
-// Load environment variables
-dotenv.config();
+// Configure path for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Temporary in-memory storage for users (will be replaced with database)
-let fakeUsers = [];
+// Load environment variables from root
+dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
+
 const secretKey = process.env.JWT_SECRET;
-let currentUserId = 1;
 
 // Verify JWT secret key availability
 console.log('Auth Controller - JWT_SECRET:', secretKey ? 'Available' : 'Missing');
@@ -56,28 +61,53 @@ class AuthController {
       await signupSchema.validate(req.body);
       const { firstName, lastName, age, email, password } = req.body;
 
-      // Prevent duplicate email registrations
-      const userExists = fakeUsers.find(user => user.email === email);
+      // Check if user already exists
+      const userExists = await User.findOne({ email });
       if (userExists) {
         return res.status(409).json({ message: "This email is already registered." });
       }
 
-      // Create new user object with metadata
-      const newUser = {
-        id: currentUserId++,
+      // Hash password
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+      // Create new user in database
+      const newUser = new User({
         firstName,
         lastName,
         age,
         email,
-        password, // Note: Password should be hashed in production
-        createdAt: new Date().toISOString(),
-      };
+        password: hashedPassword
+      });
 
-      fakeUsers.push(newUser);
-      console.log('Current Users:', fakeUsers);
-      return res.status(201).json({ userId: newUser.id });
+      const savedUser = await newUser.save();
+
+      // Generate JWT token
+      const token = jwt.sign(
+        { userId: savedUser._id, email: savedUser.email },
+        secretKey,
+        { expiresIn: '24h' }
+      );
+
+      res.status(201).json({
+        message: "User created successfully",
+        userId: savedUser._id,
+        token,
+        user: {
+          id: savedUser._id,
+          firstName: savedUser.firstName,
+          lastName: savedUser.lastName,
+          email: savedUser.email,
+          age: savedUser.age
+        }
+      });
+
     } catch (error) {
-      return res.status(400).json({ message: error.message });
+      if (error.name === 'ValidationError') {
+        return res.status(400).json({ message: error.message });
+      }
+      console.error('Signup error:', error);
+      res.status(500).json({ message: "Internal server error during registration" });
     }
   }
 
@@ -92,9 +122,15 @@ class AuthController {
       await loginSchema.validate(req.body);
       const { email, password } = req.body;
       
-      // Verify user credentials
-      const user = fakeUsers.find(user => user.email === email);
-      if (!user || user.password !== password) {
+      // Find user in database
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(401).json({ message: "Invalid email or password." });
+      }
+
+      // Verify password
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
         return res.status(401).json({ message: "Invalid email or password." });
       }
 
@@ -105,15 +141,26 @@ class AuthController {
 
       // Generate JWT token with user data
       const token = jwt.sign(
-        { userId: user.id, email: user.email }, 
+        { userId: user._id, email: user.email }, 
         secretKey,
-        { expiresIn: '1h' }
+        { expiresIn: '24h' }
       );
 
-      return res.status(200).json({ token });
+      res.status(200).json({ 
+        message: "Login successful",
+        token,
+        user: {
+          id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          age: user.age
+        }
+      });
+
     } catch (error) {
       console.error('Login error:', error.message);
-      return res.status(500).json({ message: "Error during login process" });
+      res.status(500).json({ message: "Error during login process" });
     }
   }
 
