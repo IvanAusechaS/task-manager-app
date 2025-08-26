@@ -1,15 +1,26 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import connectDB from './config/database.js';
 import authRoutes from './routes/auth.routes.js';
 import taskRoutes from './routes/tasks.routes.js';
 
-// Load environment variables
-dotenv.config();
+// Configurar path para ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables from root
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
+
+// Connect to database
+connectDB();
 
 // Debug environment variables
 console.log('Environment Check:');
 console.log('JWT_SECRET:', process.env.JWT_SECRET ? '✓ Loaded' : '✗ Missing');
+console.log('MONGODB_URI:', process.env.MONGODB_URI ? '✓ Loaded' : '✗ Missing');
 console.log('PORT:', process.env.PORT ? '✓ Loaded' : '✗ Missing');
 
 // Verify environment variables are loaded
