@@ -1,0 +1,74 @@
+/* Dashboard Styles */
+.dashboard-container {
+  max-width: 900px;
+  width: 100%;
+  min-height: 500px;
+  background: var(--bg-white);
+  border-radius: var(--border-radius-large);
+  box-shadow: 0 20px 40px var(--shadow-color);
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.dashboard-container h1 {
+  font-size: 2.5rem;
+  color: var(--text-dark);
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+}
+
+.user-info {
+  background: var(--bg-light);
+  border-radius: var(--border-radius-medium);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+}
+
+.user-info h2 {
+  font-size: 1.5rem;
+  color: var(--text-dark);
+  margin-bottom: var(--spacing-lg);
+}
+
+.user-info p {
+  font-size: 1.1rem;
+  color: var(--text-medium);
+  margin-bottom: var(--spacing-sm);
+}
+
+.logout-button {
+  width: 100%;
+  padding: 15px;
+  background: var(--primary-gradient);
+  color: var(--bg-white);
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: var(--border-radius-medium);
+  cursor: pointer;
+  transition: var(--transition-speed);
+  margin-top: auto;
+}
+
+.logout-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px var(--hover-shadow);
+}
+
+/* Dashboard Responsive */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: var(--spacing-lg);
+  }
+
+  .dashboard-container h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container h1 {
+    font-size: 1.8rem;
+  }
+}

@@ -1,0 +1,55 @@
+<div class="login-container">
+  <div class="image-section">
+    <img src="/src/assets/cover.jpg" alt="Image" class="wall-image" />
+  </div>
+
+  <div class="form-section">
+    <img src="/src/assets/google-icon.png" alt="Icon" />
+    <h1>Login to your account</h1>
+    <span>See what is going on with your business</span>
+
+    <button type="button" class="google-login">
+      <img src="/src/assets/google-icon.png" alt="Icon" /> Continue with Google
+    </button>
+
+    <span class="divider">------ or sign in with email ------</span>
+
+    <form id="login-form" method="POST" class="login-form">
+      <div>
+        <label for="email">Email</label><br />
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="Enter your email"
+          required
+        />
+      </div>
+
+      <div>
+        <label for="password">Password</label><br />
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Enter your password"
+          required
+        />
+      </div>
+
+      <div class="remember-me">
+        <div>
+          <input type="checkbox" id="remember" name="remember" />
+          <label for="remember">Remember me</label>
+        </div>
+        <a href="#" id="go-recovery">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="login-button">Login</button>
+    </form>
+
+    <div class="sign-up">
+      <span>Don't have an account? <a href="#" id="go-signup">Sign up</a></span>
+    </div>
+  </div>
+</div>
