@@ -235,7 +235,7 @@
   .form-section h1 {
     font-size: 2rem;
   }
-  
+
   /* Ajuste para formulario de signup en móvil */
   #signup-form {
     padding-bottom: var(--spacing-lg);

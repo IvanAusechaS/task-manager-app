@@ -45,16 +45,22 @@ export default function setupSignup() {
       localStorage.setItem("token", res.token);
       localStorage.setItem("user", JSON.stringify(res.user));
 
-      alert(`Welcome, ${res.user.firstName}! Your account has been created successfully.`);
+      alert(
+        `Welcome, ${res.user.firstName}! Your account has been created successfully.`
+      );
       navigateTo("dashboard"); // Redirigir al dashboard después del registro exitoso
     } catch (err) {
       console.error("Signup error:", err);
-      
+
       // Manejar error específico para email ya registrado
       if (err.message && err.message.includes("already registered")) {
-        alert("This email is already registered. Please use a different email or login to your existing account.");
+        alert(
+          "This email is already registered. Please use a different email or login to your existing account."
+        );
       } else {
-        alert("Error creating account. Please check your information and try again.");
+        alert(
+          "Error creating account. Please check your information and try again."
+        );
       }
     }
   });
