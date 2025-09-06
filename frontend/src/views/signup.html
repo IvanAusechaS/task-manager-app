@@ -1,0 +1,93 @@
+<div class="login-container">
+  <div class="image-section">
+    <img src="/src/assets/cover.jpg" alt="Image" class="wall-image" />
+  </div>
+
+  <div class="form-section">
+    <img src="/src/assets/google-icon.png" alt="Icon" />
+    <h1>Create your account</h1>
+    <span>Join our task management platform</span>
+
+    <button type="button" class="google-login">
+      <img src="/src/assets/google-icon.png" alt="Icon" /> Sign up with Google
+    </button>
+
+    <span class="divider">------ or sign up with email ------</span>
+
+    <form id="signup-form" method="POST" class="login-form">
+      <div>
+        <label for="firstName">First Name</label><br />
+        <input
+          type="text"
+          id="firstName"
+          name="firstName"
+          placeholder="Enter your first name"
+          required
+        />
+      </div>
+
+      <div>
+        <label for="lastName">Last Name</label><br />
+        <input
+          type="text"
+          id="lastName"
+          name="lastName"
+          placeholder="Enter your last name"
+          required
+        />
+      </div>
+
+      <div>
+        <label for="email">Email</label><br />
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="Enter your email"
+          required
+        />
+      </div>
+
+      <div>
+        <label for="age">Age</label><br />
+        <input
+          type="number"
+          id="age"
+          name="age"
+          placeholder="Enter your age"
+          min="0"
+        />
+      </div>
+
+      <div>
+        <label for="password">Password</label><br />
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Create a password (min. 6 characters)"
+          required
+          minlength="6"
+        />
+      </div>
+
+      <div>
+        <label for="confirmPassword">Confirm Password</label><br />
+        <input
+          type="password"
+          id="confirmPassword"
+          name="confirmPassword"
+          placeholder="Confirm your password"
+          required
+          minlength="6"
+        />
+      </div>
+
+      <button type="submit" class="login-button">Create Account</button>
+    </form>
+
+    <div class="sign-up">
+      <span>Already have an account? <a href="#" id="go-login">Log in</a></span>
+    </div>
+  </div>
+</div>
