@@ -7,9 +7,11 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import path from 'path';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import * as yup from 'yup';
 import User from '../models/user.model.js';
+import EmailService from '../services/email.service.js';
 import { requireAuth, validateRequest } from '../utils/decorators.js';
 
 // Configure path for ES modules
@@ -43,6 +45,15 @@ const signupSchema = yup.object().shape({
 const loginSchema = yup.object().shape({
   email: yup.string().email().required(),
   password: yup.string().min(6).required(),
+});
+
+const resetPasswordSchema = yup.object().shape({
+    email: yup.string().email().required()
+});
+
+const newPasswordSchema = yup.object().shape({
+    password: yup.string().min(6).required(),
+    token: yup.string().required()
 });
 
 /**
@@ -164,6 +175,48 @@ class AuthController {
     }
   }
 
+  async googleCallback(req, res) {
+        try {
+            const user = req.user;
+            
+            if (!user) {
+                return res.status(401).json({
+                    success: false,
+                    message: "Authentication failed"
+                });
+            }
+
+            const token = jwt.sign(
+                { 
+                    userId: user._id, 
+                    email: user.email 
+                },
+                secretKey,
+                { expiresIn: '24h' }
+            );
+
+            // Respuesta consistente con el formato del login normal
+            res.status(200).json({ 
+                success: true,
+                message: "Login successful",
+                token,
+                user: {
+                    id: user._id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    age: user.age
+                }
+            });
+        } catch (error) {
+            console.error('Google auth error:', error);
+            res.status(500).json({
+                success: false,
+                message: "Error during authentication process"
+            });
+        }
+    }
+
   /**
    * End user session
    * @param {Object} req - Express request object
@@ -171,8 +224,26 @@ class AuthController {
    * @returns {Object} Success message
    */
   async logout(req, res) {
-    return res.status(200).json({ message: "Logout successful." });
-  }
+    try {
+        // Limpiar la sesión
+        req.logout((err) => {
+            if (err) {
+                return res.status(500).json({ message: "Error during logout" });
+            }
+            // Destruir la sesión
+            req.session.destroy((err) => {
+                if (err) {
+                    return res.status(500).json({ message: "Error destroying session" });
+                }
+                res.clearCookie('connect.sid');
+                return res.status(200).json({ message: "Logout successful" });
+            });
+        });
+    } catch (error) {
+        console.error('Logout error:', error);
+        res.status(500).json({ message: "Error during logout process" });
+    }
+}
 
   /**
    * Handle password recovery request
@@ -181,8 +252,97 @@ class AuthController {
    * @returns {Object} Success message
    */
   async recoverPassword(req, res) {
-    return res.status(200).json({ message: "Password recovery email sent (placeholder)." });
-  }
+        try {
+            await resetPasswordSchema.validate(req.body);
+            const { email } = req.body;
+
+            // Mensaje genérico por seguridad
+            const genericMessage = {
+                success: true,
+                message: "Si existe una cuenta con este email, recibirás un correo con las instrucciones."
+            };
+
+            const user = await User.findOne({ email });
+            if (!user) {
+                return res.status(200).json(genericMessage);
+            }
+
+            const resetToken = crypto.randomBytes(32).toString('hex');
+            const hash = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+            user.resetPasswordToken = hash;
+            user.resetPasswordExpires = Date.now() + 3600000; // 1 hora
+            await user.save();
+
+            const emailSent = await EmailService.sendPasswordResetEmail(email, resetToken);
+            
+            if (!emailSent) {
+                throw new Error('Error sending email');
+            }
+
+            res.status(200).json(genericMessage);
+        } catch (error) {
+            console.error('Password recovery error:', error);
+            res.status(500).json({ 
+                success: false,
+                message: "Error en el proceso de recuperación de contraseña" 
+            });
+        }
+    }
+
+    async resetPassword(req, res) {
+        try {
+            await newPasswordSchema.validate(req.body);
+            const { token, password } = req.body;
+
+            const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+            const user = await User.findOne({
+                resetPasswordToken: hashedToken,
+                resetPasswordExpires: { $gt: Date.now() }
+            });
+
+            if (!user) {
+                return res.status(400).json({ 
+                    success: false,
+                    message: "Token inválido o expirado" 
+                });
+            }
+
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash(password, saltRounds);
+            
+            user.password = hashedPassword;
+            user.resetPasswordToken = undefined;
+            user.resetPasswordExpires = undefined;
+            await user.save();
+
+            // Generar nuevo token de acceso después del reset
+            const newToken = jwt.sign(
+                { userId: user._id, email: user.email },
+                secretKey,
+                { expiresIn: '24h' }
+            );
+
+            res.status(200).json({ 
+                success: true,
+                message: "Contraseña actualizada exitosamente",
+                token: newToken,
+                user: {
+                    id: user._id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    age: user.age
+                }
+            });
+        } catch (error) {
+            console.error('Password reset error:', error);
+            res.status(500).json({ 
+                success: false,
+                message: "Error al restablecer la contraseña" 
+            });
+        }
+    }
 }
 
 // Create single instance of controller
@@ -194,18 +354,22 @@ const controller = new AuthController();
  */
 export default {
   signup: [
-    validateRequest(signupSchema), // Validate request body
+    validateRequest(signupSchema),
     (req, res) => controller.signup(req, res)
   ],
   login: [
-    validateRequest(loginSchema), // Validate login credentials
+    validateRequest(loginSchema),
     (req, res) => controller.login(req, res)
   ],
+  googleCallback: (req, res) => controller.googleCallback(req, res), // Cambiado de authController a controller
   logout: [
-    requireAuth, // Ensure user is authenticated
+    requireAuth,
     (req, res) => controller.logout(req, res)
   ],
   recoverPassword: [
     (req, res) => controller.recoverPassword(req, res)
+  ],
+  resetPassword: [
+    (req, res) => controller.resetPassword(req, res)
   ]
 };

@@ -1,7 +1,10 @@
 import express from 'express';
+import session from 'express-session';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import path from 'path';
+import passport from 'passport';
+import './config/passport.js';
 import { fileURLToPath } from 'url';
 import connectDB from './config/database.js';
 import authRoutes from './routes/auth.routes.js';
@@ -31,9 +34,21 @@ if (!process.env.JWT_SECRET) {
 
 const app = express();
 
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 24 * 60 * 60 * 1000 // 24 horas
+    }
+}));
+
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Routes
 app.use('/api/auth', authRoutes);
