@@ -108,12 +108,10 @@ export default function setupDashboard() {
       // Mostrar estado vacío
       elements.emptyState.style.display = "flex";
       elements.kanbanBoard.style.display = "none";
-      elements.newTaskButton.style.display = "none";
     } else {
       // Mostrar tablero kanban
       elements.emptyState.style.display = "none";
       elements.kanbanBoard.style.display = "grid";
-      elements.newTaskButton.style.display = "flex";
 
       // Limpiar contenedores
       document.getElementById("todo-tasks").innerHTML = "";

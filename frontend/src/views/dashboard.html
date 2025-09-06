@@ -1,135 +1,137 @@
-<div class="dashboard-container">
-  <div class="dashboard-header">
-    <div class="user-avatar">
-      <span id="user-avatar-letter">A</span>
-    </div>
-    <div class="user-display">
-      <span id="user-name">User name</span>
-    </div>
-    <button id="logout-button" class="log-out-button">Log out</button>
+<!-- Header fijo en la parte superior -->
+<header class="app-header">
+  <div class="user-avatar">
+    <span id="user-avatar-letter">A</span>
   </div>
-
-  <!-- Sección de título y conteo de tareas -->
-  <div class="tasks-header">
-    <h1>My tasks</h1>
-    <span id="task-counter">0 tasks created</span>
+  <div class="user-display">
+    <span id="user-name">User name</span>
   </div>
+  <button id="logout-button" class="log-out-button">Log out</button>
+</header>
 
-  <!-- Contenedor de tareas principal - puede cambiar según el estado -->
-  <div id="tasks-main-container">
-    <!-- Estado vacío: se muestra cuando no hay tareas -->
-    <div id="empty-state" class="tasks-empty-state">
-      <div class="empty-state-icon">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="40"
-          height="40"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <line x1="12" y1="5" x2="12" y2="19"></line>
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
-      </div>
-      <h2>Start by creating your first task!</h2>
-      <p>Organize your work and keep track of your activities.</p>
-      <button id="create-first-task" class="create-task-button">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <line x1="12" y1="5" x2="12" y2="19"></line>
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
-        Create new task
-      </button>
-    </div>
 
-    <!-- Estado con tareas: se muestra cuando hay al menos una tarea (kanban) -->
-    <div id="kanban-board" class="kanban-board" style="display: none">
-      <!-- Columna "To Do" -->
-      <div class="kanban-column todo-column">
-        <div class="column-header">
-          <h2>To do</h2>
-          <span class="task-count" id="todo-count">0</span>
+  <div class="dashboard-container">
+    <!-- Contenedor principal con borde redondeado -->
+    <div class="tasks-main-card">
+      <!-- Sección de título y conteo de tareas con botón de nueva tarea -->
+      <div class="tasks-header">
+        <div class="tasks-title-section">
+          <h1>My tasks</h1>
+          <span id="task-counter">0 tasks created</span>
         </div>
-        <div id="todo-tasks" class="tasks-container">
-          <!-- Aquí se agregarán dinámicamente las tareas "por hacer" -->
-        </div>
-        <div class="column-footer">
-          <span class="counter" id="todo-counter">0</span>
-          <span>To do</span>
+        <div id="new-task-button-container">
+          <button id="new-task-button" class="new-task-button">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            New task
+          </button>
         </div>
       </div>
 
-      <!-- Columna "Doing" -->
-      <div class="kanban-column doing-column">
-        <div class="column-header">
-          <h2>Doing</h2>
-          <span class="task-count" id="doing-count">0</span>
+      <!-- Contenedor de tareas principal - puede cambiar según el estado -->
+      <div id="tasks-main-container">
+        <!-- Estado vacío: se muestra cuando no hay tareas -->
+        <div id="empty-state" class="tasks-empty-state">
+          <div class="empty-state-icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </div>
+          <h2>Start by creating your first task!</h2>
+          <p>Organize your work and keep track of your activities.</p>
+          <button id="create-first-task" class="create-task-button">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Create new task
+          </button>
         </div>
-        <div id="doing-tasks" class="tasks-container">
-          <!-- Aquí se agregarán dinámicamente las tareas "haciendo" -->
-        </div>
-        <div class="column-footer">
-          <span class="counter" id="doing-counter">0</span>
-          <span>Doing</span>
-        </div>
-      </div>
 
-      <!-- Columna "Done" -->
-      <div class="kanban-column done-column">
-        <div class="column-header">
-          <h2>Done</h2>
-          <span class="task-count" id="done-count">0</span>
-        </div>
-        <div id="done-tasks" class="tasks-container">
-          <!-- Aquí se agregarán dinámicamente las tareas "hecho" -->
-        </div>
-        <div class="column-footer">
-          <span class="counter" id="done-counter">0</span>
-          <span>Done</span>
+        <!-- Estado con tareas: se muestra cuando hay al menos una tarea (kanban) -->
+        <div id="kanban-board" class="kanban-board" style="display: none">
+          <!-- Columna "To Do" -->
+          <div class="kanban-column todo-column">
+            <div class="column-header">
+              <h2>To do</h2>
+              <span class="task-count" id="todo-count">0</span>
+            </div>
+            <div id="todo-tasks" class="tasks-container">
+              <!-- Aquí se agregarán dinámicamente las tareas "por hacer" -->
+            </div>
+            <div class="column-footer">
+              <span class="counter" id="todo-counter">0</span>
+              <span>To do</span>
+            </div>
+          </div>
+
+          <!-- Columna "Doing" -->
+          <div class="kanban-column doing-column">
+            <div class="column-header">
+              <h2>Doing</h2>
+              <span class="task-count" id="doing-count">0</span>
+            </div>
+            <div id="doing-tasks" class="tasks-container">
+              <!-- Aquí se agregarán dinámicamente las tareas "haciendo" -->
+            </div>
+            <div class="column-footer">
+              <span class="counter" id="doing-counter">0</span>
+              <span>Doing</span>
+            </div>
+          </div>
+
+          <!-- Columna "Done" -->
+          <div class="kanban-column done-column">
+            <div class="column-header">
+              <h2>Done</h2>
+              <span class="task-count" id="done-count">0</span>
+            </div>
+            <div id="done-tasks" class="tasks-container">
+              <!-- Aquí se agregarán dinámicamente las tareas "hecho" -->
+            </div>
+            <div class="column-footer">
+              <span class="counter" id="done-counter">0</span>
+              <span>Done</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Botón flotante para agregar nueva tarea -->
-  <div
-    id="new-task-button-container"
-    class="new-task-button-container"
-    style="display: none"
-  >
-    <button id="new-task-button" class="new-task-button">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <line x1="12" y1="5" x2="12" y2="19"></line>
-        <line x1="5" y1="12" x2="19" y2="12"></line>
-      </svg>
-      New task
-    </button>
-  </div>
-</div>
 
 <!-- Modal para crear/editar tarea -->
 <div id="task-modal" class="modal" style="display: none">

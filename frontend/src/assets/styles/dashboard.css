@@ -1,21 +1,43 @@
-/* Dashboard Styles */
-.dashboard-container {
-  width: 150%;
-  min-height: 100vh;
-  background: var(--bg-white);
-  display: flex;
-  flex-direction: column;
-  align-content: center;
-  padding: var(--spacing-lg);
+/* Global Box Sizing */
+* {
+  box-sizing: border-box;
 }
 
-/* Dashboard Header */
-.dashboard-header {
+/* App Header - Fixed at the top */
+.app-header {
   display: flex;
   align-items: center;
-  padding-bottom: var(--spacing-lg);
-  border-bottom: 1px solid #e0e0e0;
-  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  height: 60px;
+}
+
+.dashboard-container {
+  width: 200%;
+  position: relative;
+  left: -50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 var(--spacing-lg) var(--spacing-lg);
+}
+
+/* Main Card Container */
+.tasks-main-card {
+  width: 100%;
+  max-width: 1200px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: var(--spacing-xl);
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .user-avatar {
@@ -55,8 +77,14 @@
 /* Tasks Header */
 .tasks-header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: var(--spacing-xl);
+}
+
+.tasks-title-section {
+  display: flex;
+  flex-direction: column;
 }
 
 .tasks-header h1 {
@@ -268,7 +296,6 @@
 .new-task-button-container {
   display: flex;
   justify-content: flex-end;
-  margin-top: var(--spacing-lg);
 }
 
 .new-task-button {
@@ -382,6 +409,12 @@
 }
 
 /* Dashboard Responsive */
+@media (max-width: 1200px) {
+  .tasks-main-card {
+    width: 95%;
+  }
+}
+
 @media (max-width: 900px) {
   .kanban-board {
     grid-template-columns: 1fr;
@@ -391,11 +424,33 @@
   .kanban-column {
     min-height: 200px;
   }
+
+  .tasks-main-card {
+    padding: var(--spacing-lg);
+  }
 }
 
 @media (max-width: 768px) {
+  .dashboard-wrapper {
+    padding-top: 70px;
+  }
+
   .dashboard-container {
-    padding: var(--spacing-md);
+    padding: 0 var(--spacing-sm) var(--spacing-sm);
+  }
+
+  .tasks-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  #new-task-button-container {
+    width: 100%;
+  }
+
+  .new-task-button {
+    width: 100%;
   }
 
   .tasks-header h1 {
@@ -412,9 +467,8 @@
 }
 
 @media (max-width: 480px) {
-  .dashboard-header {
-    padding-bottom: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
+  .app-header {
+    padding: var(--spacing-sm);
   }
 
   .user-display {
@@ -424,6 +478,10 @@
   .log-out-button {
     padding: 6px 12px;
     font-size: 0.9rem;
+  }
+
+  .tasks-main-card {
+    padding: var(--spacing-md);
   }
 
   .tasks-header h1 {
