@@ -43,9 +43,14 @@ app.use(session({
         maxAge: 24 * 60 * 60 * 1000 // 24 horas
     }
 }));
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Middleware
-app.use(cors());
 app.use(express.json());
 app.use(passport.initialize());
 app.use(passport.session());
