@@ -47,6 +47,19 @@ input.valid {
   cursor: not-allowed;
 }
 
+/* Requisitos de contraseña */
+.password-requirements {
+  display: none;
+  font-size: 12px;
+  color: #6c757d;
+  margin-top: 4px;
+  line-height: 1.4;
+  background-color: #f8f9fa;
+  padding: 8px;
+  border-radius: 4px;
+  border-left: 3px solid #17a2b8;
+}
+
 /* Hidden helper class */
 .hidden {
   display: none;
