@@ -14,9 +14,14 @@
 
     <span class="divider">------ or sign in with email ------</span>
 
+    <!-- Toast notification -->
+    <div id="toast-notification" class="toast-notification" aria-live="polite">
+      <span id="toast-message"></span>
+    </div>
+
     <form id="login-form" method="POST" class="login-form">
-      <div>
-        <label for="email">Email</label><br />
+      <div class="form-field">
+        <label for="email">Email</label>
         <input
           type="email"
           id="email"
@@ -24,10 +29,11 @@
           placeholder="Enter your email"
           required
         />
+        <div id="email-error" class="tooltip-error"></div>
       </div>
 
-      <div>
-        <label for="password">Password</label><br />
+      <div class="form-field">
+        <label for="password">Password</label>
         <input
           type="password"
           id="password"
@@ -35,6 +41,7 @@
           placeholder="Enter your password"
           required
         />
+        <div id="password-error" class="tooltip-error"></div>
       </div>
 
       <div class="remember-me">
@@ -45,7 +52,10 @@
         <a href="#" id="go-recovery">Forgot password?</a>
       </div>
 
-      <button type="submit" class="login-button">Login</button>
+      <button type="submit" id="login-button" class="login-button" disabled>
+        <span id="button-text">Login</span>
+        <span id="spinner" class="spinner hidden"></span>
+      </button>
     </form>
 
     <div class="sign-up">
@@ -53,3 +63,108 @@
     </div>
   </div>
 </div>
+
+<!-- Estilos adicionales para validación y notificaciones -->
+<style>
+  .form-field {
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .tooltip-error {
+    display: none;
+    position: absolute;
+    background-color: #f8d7da;
+    color: #721c24;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 12px;
+    z-index: 100;
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .tooltip-error.visible {
+    display: block;
+  }
+
+  input.error {
+    border: 1px solid #dc3545;
+  }
+
+  input.valid {
+    border: 1px solid #28a745;
+  }
+
+  .toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    background-color: #d4edda;
+    color: #155724;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: none;
+    z-index: 1000;
+    transition: all 0.3s ease;
+  }
+
+  .toast-notification.error {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+
+  .toast-notification.show {
+    display: block;
+    animation: fadeInOut 3s forwards;
+  }
+
+  @keyframes fadeInOut {
+    0% {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    10% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    90% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+  }
+
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .login-button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+  }
+</style>

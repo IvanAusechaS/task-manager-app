@@ -278,12 +278,21 @@ export default function setupDashboard() {
   async function handleLogout() {
     try {
       await logout();
+      
+      // Mostrar toast de éxito en la página de inicio
+      localStorage.setItem("logout_message", "Sesión cerrada correctamente");
+      
+      // Redirigir a la página de inicio
       navigateTo("login");
     } catch (err) {
       console.error("Error al cerrar sesión:", err);
       // Si falla el logout en el servidor, limpiar localStorage de todas formas
       localStorage.removeItem("token");
       localStorage.removeItem("user");
+      
+      // Mostrar toast de éxito en la página de inicio
+      localStorage.setItem("logout_message", "Sesión cerrada correctamente");
+      
       navigateTo("login");
     }
   }
