@@ -56,8 +56,21 @@ export async function logout() {
  */
 export async function sendPasswordResetEmail(email) {
   console.log("Sending password reset request for:", email);
-  // Recovery doesn't require auth token
-  return post("/auth/recover-password", { email }, false);
+  try {
+    // Recovery doesn't require auth token
+    const result = await post("/auth/recover-password", { email }, false);
+    console.log("Password reset response:", result);
+    return result;
+  } catch (error) {
+    console.error("Error in sendPasswordResetEmail:", error);
+    // Devolver un objeto con formato similar a una respuesta exitosa pero con flag de error
+    return {
+      success: false,
+      message:
+        error.message ||
+        "Error al enviar el correo de recuperación. Intenta de nuevo más tarde.",
+    };
+  }
 }
 
 /**
@@ -68,8 +81,24 @@ export async function sendPasswordResetEmail(email) {
  * @returns {Promise<Object>} Reset confirmation
  */
 export async function resetPassword(token, newPassword) {
-  // Reset doesn't require auth token
-  return post("/auth/reset-password", { token, newPassword }, false);
+  try {
+    // Reset doesn't require auth token
+    const result = await post(
+      "/auth/reset-password",
+      { token, newPassword },
+      false
+    );
+    return result;
+  } catch (error) {
+    console.error("Error in resetPassword:", error);
+    // Devolver un objeto con formato similar a una respuesta exitosa pero con flag de error
+    return {
+      success: false,
+      message:
+        error.message ||
+        "Error al restablecer la contraseña. Intenta de nuevo más tarde.",
+    };
+  }
 }
 
 /**

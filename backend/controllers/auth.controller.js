@@ -299,17 +299,25 @@ class AuthController {
       console.log("Reset token saved to user");
 
       console.log("Sending reset email");
-      const emailSent = await EmailService.sendPasswordResetEmail(
-        email,
-        resetToken
-      );
+      try {
+        const emailSent = await EmailService.sendPasswordResetEmail(
+          email,
+          resetToken
+        );
 
-      if (!emailSent) {
-        console.error("Failed to send reset email");
-        throw new Error("Error sending email");
+        if (!emailSent) {
+          console.error("Failed to send reset email");
+          // No lanzamos error, continuamos con respuesta genérica
+          console.log("Responding with generic message despite email failure");
+        } else {
+          console.log("Reset email sent successfully");
+        }
+      } catch (emailError) {
+        console.error("Email service error:", emailError);
+        // No lanzamos error, continuamos con respuesta genérica
       }
 
-      console.log("Reset email sent successfully");
+      // Siempre devolver mensaje genérico independientemente de si el correo se envió
       res.status(200).json(genericMessage);
     } catch (error) {
       console.error("Password recovery error:", error);
