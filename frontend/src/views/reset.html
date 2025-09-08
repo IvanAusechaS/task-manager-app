@@ -1,3 +1,6 @@
+<link rel="stylesheet" href="/src/assets/styles/forms.css" />
+<link rel="stylesheet" href="/src/assets/styles/alerts.css" />
+
 <div class="login-container">
   <div class="image-section">
     <img src="/src/assets/cover.jpg" alt="Image" class="wall-image" />
@@ -35,7 +38,7 @@
       <button type="submit" class="login-button">Reset Password</button>
     </form>
 
-    <div id="success-message" style="display: none">
+    <div id="success-message" class="success-message">
       <div class="alert alert-success">
         <h3>Password Reset Successful!</h3>
         <p>
@@ -46,7 +49,7 @@
       </div>
     </div>
 
-    <div id="error-message" class="alert alert-error" style="display: none">
+    <div id="error-message" class="alert alert-error error-message">
       Error resetting password. Please try again.
     </div>
 
@@ -55,25 +58,3 @@
     </div>
   </div>
 </div>
-
-<!-- Add styles for alerts -->
-<style>
-  .alert {
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 5px;
-  }
-  .alert-success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-  }
-  .alert-error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-  }
-  #success-message h3 {
-    margin-top: 0;
-  }
-</style>

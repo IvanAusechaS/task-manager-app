@@ -4,48 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Google Auth Callback</title>
-    <style>
-      body {
-        font-family: "Poppins", sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-        background-color: #f7f9fc;
-      }
-      .container {
-        text-align: center;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        background-color: white;
-        max-width: 500px;
-      }
-      h1 {
-        color: #4a6ee0;
-      }
-      .loader {
-        border: 5px solid #f3f3f3;
-        border-top: 5px solid #4a6ee0;
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        animation: spin 1s linear infinite;
-        margin: 20px auto;
-      }
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="/src/assets/styles/auth-pages.css" />
+    <link rel="stylesheet" href="/src/assets/styles/spinners.css" />
   </head>
-  <body>
-    <div class="container">
+  <body class="auth-callback-page">
+    <div class="auth-container">
       <h1>Autenticación con Google</h1>
       <p>Procesando tu inicio de sesión...</p>
       <div class="loader"></div>

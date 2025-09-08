@@ -106,16 +106,16 @@
   margin-bottom: var(--spacing-lg);
 }
 
-.login-form div {
+.login-form div:not(.form-field) {
   margin-bottom: var(--spacing-lg);
 }
 
 .login-form label {
   font-size: 0.95rem;
   font-weight: 600;
-  margin-bottom: var(--spacing-xs);
   color: var(--text-dark);
   display: block;
+  margin-bottom: 8px;
 }
 
 .login-form input {
@@ -214,11 +214,19 @@
 }
 
 .form-field {
-  margin-top: var(--spacing-lg);
+  position: relative;
+  margin-bottom: var(--spacing-lg);
 }
 
-.form-field label {
-  margin-bottom: -15px;
+.form-field label,
+.form-label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+  position: relative;
+  z-index: 2;
 }
 /* Error message styles */
 .error-message {

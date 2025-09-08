@@ -1,0 +1,45 @@
+/* Estilos para notificaciones toast */
+@import "variables.css";
+
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 24px;
+  background-color: #d4edda;
+  color: #155724;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: none;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.toast-notification.error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.toast-notification.show {
+  display: block;
+  animation: fadeInOut 3s forwards;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}

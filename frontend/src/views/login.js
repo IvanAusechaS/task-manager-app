@@ -11,11 +11,11 @@ export default function setupLogin() {
   const spinner = document.getElementById("spinner");
   const toastNotification = document.getElementById("toast-notification");
   const toastMessage = document.getElementById("toast-message");
-  
+
   // Referencias a campos de entrada
   const emailInput = document.getElementById("email");
   const passwordInput = document.getElementById("password");
-  
+
   // Referencias a contenedores de errores
   const emailError = document.getElementById("email-error");
   const passwordError = document.getElementById("password-error");
@@ -23,7 +23,7 @@ export default function setupLogin() {
   // Objeto para almacenar el estado de validación de cada campo
   const validationState = {
     email: false,
-    password: false
+    password: false,
   };
 
   // Verificar mensaje de logout
@@ -39,9 +39,9 @@ export default function setupLogin() {
     if (token) {
       // Verificar si el token es válido
       try {
-        const tokenData = JSON.parse(atob(token.split('.')[1]));
+        const tokenData = JSON.parse(atob(token.split(".")[1]));
         const expirationTime = tokenData.exp * 1000; // Convertir a milisegundos
-        
+
         if (Date.now() < expirationTime) {
           // El token es válido, redirigir al dashboard
           navigateTo("dashboard");
@@ -50,7 +50,10 @@ export default function setupLogin() {
           // El token ha expirado, limpiarlo
           localStorage.removeItem("token");
           localStorage.removeItem("user");
-          showToast("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.", true);
+          showToast(
+            "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+            true
+          );
         }
       } catch (e) {
         console.error("Error al verificar el token:", e);
@@ -70,13 +73,13 @@ export default function setupLogin() {
   function showToast(message, isError = false) {
     toastMessage.textContent = message;
     toastNotification.classList.remove("error");
-    
+
     if (isError) {
       toastNotification.classList.add("error");
     }
-    
+
     toastNotification.classList.add("show");
-    
+
     setTimeout(() => {
       toastNotification.classList.remove("show");
     }, 3000);
@@ -95,6 +98,7 @@ export default function setupLogin() {
   // Función para limpiar error en un campo
   function clearError(input, errorElement) {
     input.classList.remove("error");
+    errorElement.textContent = "";
     errorElement.classList.remove("visible");
   }
 
@@ -108,27 +112,28 @@ export default function setupLogin() {
 
   // Función para actualizar el estado del botón de envío
   function updateSubmitButton() {
-    const allValid = Object.values(validationState).every(valid => valid);
+    const allValid = Object.values(validationState).every((valid) => valid);
     submitButton.disabled = !allValid;
   }
 
   // Validación de email
   function validateEmail(input, errorElement) {
     const value = input.value.trim();
-    
+
     // RFC 5322 regex para validar email
-    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-    
+    const emailRegex =
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+
     if (value.length === 0) {
       showError(input, errorElement, "Email is required");
       return false;
     }
-    
+
     if (!emailRegex.test(value)) {
       showError(input, errorElement, "Please enter a valid email address");
       return false;
     }
-    
+
     markValid(input);
     return true;
   }
@@ -136,12 +141,12 @@ export default function setupLogin() {
   // Validación de contraseña
   function validatePassword(input, errorElement) {
     const value = input.value;
-    
+
     if (value.length === 0) {
       showError(input, errorElement, "Password is required");
       return false;
     }
-    
+
     markValid(input);
     return true;
   }
@@ -150,7 +155,7 @@ export default function setupLogin() {
   function validateAll() {
     const isEmailValid = validateEmail(emailInput, emailError);
     const isPasswordValid = validatePassword(passwordInput, passwordError);
-    
+
     return isEmailValid && isPasswordValid;
   }
 
@@ -158,23 +163,23 @@ export default function setupLogin() {
   emailInput.addEventListener("input", () => {
     validateEmail(emailInput, emailError);
   });
-  
+
   passwordInput.addEventListener("input", () => {
     validatePassword(passwordInput, passwordError);
   });
-  
+
   // Validar campos al cargar para activar/desactivar botón
   validateAll();
 
   // Event listener para el envío del formulario
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    
+
     // Validar todos los campos antes de enviar
     if (!validateAll()) {
       return;
     }
-    
+
     // Mostrar spinner y cambiar texto del botón
     buttonText.textContent = "Logging in...";
     spinner.classList.remove("hidden");
@@ -185,17 +190,17 @@ export default function setupLogin() {
 
     try {
       console.log("Intentando iniciar sesión con:", { email });
-      
+
       // Guardar tiempo de inicio para asegurar un tiempo mínimo de procesamiento
       const startTime = Date.now();
       const res = await login(email, password);
       const elapsedTime = Date.now() - startTime;
-      
-      // Asegurar que la pantalla de carga se muestre al menos por 1 segundo 
+
+      // Asegurar que la pantalla de carga se muestre al menos por 1 segundo
       // pero no más de 3 segundos como indica el requisito
       const remainingTime = Math.min(3000, Math.max(0, 1000 - elapsedTime));
-      await new Promise(resolve => setTimeout(resolve, remainingTime));
-      
+      await new Promise((resolve) => setTimeout(resolve, remainingTime));
+
       console.log("Respuesta del servidor:", res);
 
       // Guardamos token y usuario en localStorage (de forma "segura")
@@ -204,19 +209,19 @@ export default function setupLogin() {
 
       // Mostrar toast de éxito
       showToast(`¡Bienvenido, ${res.user.firstName}!`);
-      
+
       // Esperar un momento y redirigir (menos de 500ms según requisito)
       setTimeout(() => {
         navigateTo("dashboard");
       }, 300);
     } catch (err) {
       console.error("Login error:", err);
-      
+
       // Restablecer botón
       buttonText.textContent = "Login";
       spinner.classList.add("hidden");
       submitButton.disabled = false;
-      
+
       // Manejar errores específicos según el código HTTP
       if (err.message && err.message.includes("401")) {
         showError(emailInput, emailError, "Invalid email or password");
@@ -229,7 +234,7 @@ export default function setupLogin() {
       } else if (err.message && /5\d\d/.test(err.message)) {
         // Error 5xx - Error del servidor
         showToast("Please try again later", true);
-        
+
         // En modo dev, mostrar en consola
         if (process.env.NODE_ENV !== "production") {
           console.error("Server error details:", err);
@@ -296,7 +301,7 @@ export default function setupLogin() {
 
           // Mostrar toast y redirigir al dashboard
           showToast(`¡Bienvenido, ${user.firstName}!`);
-          
+
           // Redirigir al dashboard después de un breve momento
           setTimeout(() => {
             navigateTo("dashboard");
@@ -334,7 +339,7 @@ export default function setupLogin() {
 
           // Mostrar toast y redirigir al dashboard
           showToast(`¡Bienvenido, ${user.firstName}!`);
-          
+
           // Redirigir al dashboard
           setTimeout(() => {
             navigateTo("dashboard");
@@ -358,7 +363,7 @@ export default function setupLogin() {
             try {
               const user = JSON.parse(localStorage.getItem("user"));
               console.log("Autenticación detectada después de cerrar ventana");
-              
+
               showToast(`¡Bienvenido, ${user.firstName}!`);
               setTimeout(() => {
                 navigateTo("dashboard");
@@ -388,7 +393,7 @@ export default function setupLogin() {
     setTimeout(() => {
       clearInterval(checkAuth);
       window.removeEventListener("message", messageListener);
-      
+
       // Restaurar botón si no se completó la autenticación
       buttonText.textContent = "Login";
       spinner.classList.add("hidden");

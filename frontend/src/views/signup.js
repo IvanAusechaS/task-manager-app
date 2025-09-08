@@ -66,6 +66,7 @@ export default function setupSignup() {
   // Función para limpiar error en un campo
   function clearError(input, errorElement) {
     input.classList.remove("error");
+    errorElement.textContent = "";
     errorElement.classList.remove("visible");
   }
 
@@ -328,7 +329,7 @@ export default function setupSignup() {
       // Esperar un momento y redireccionar
       setTimeout(() => {
         navigateTo("login");
-      }, 500);
+      }, 300);
     } catch (err) {
       console.error("Signup error:", err);
 
@@ -383,6 +384,11 @@ export default function setupSignup() {
       "width=600,height=700,top=100,left=100"
     );
 
+    // Mostrar spinner durante la autenticación
+    buttonText.textContent = "Authenticating...";
+    spinner.classList.remove("hidden");
+    submitButton.disabled = true;
+
     // Configurar listener para mensajes de la ventana emergente
     const messageListener = function (event) {
       // Verificar que el mensaje sea de autenticación exitosa
@@ -390,12 +396,22 @@ export default function setupSignup() {
         // Limpiar listener para evitar duplicados
         window.removeEventListener("message", messageListener);
 
+        // Limpiar cualquier intervalo de verificación que pueda estar corriendo
+        if (window.googleAuthCheckInterval) {
+          clearInterval(window.googleAuthCheckInterval);
+          delete window.googleAuthCheckInterval;
+        }
+
         // Procesar el usuario autenticado
         const user = event.data.user;
         if (user) {
           console.log("Autenticación con Google exitosa a través de mensaje");
           showToast(`Welcome, ${user.firstName}!`);
-          navigateTo("dashboard");
+
+          // Redirigir al dashboard después de un breve momento
+          setTimeout(() => {
+            navigateTo("dashboard");
+          }, 300);
         }
       }
     };
@@ -415,6 +431,9 @@ export default function setupSignup() {
       if (token && currentTime - authAttemptTime < 30000) {
         clearInterval(checkAuth);
 
+        // Guardar la referencia global para poder cancelarla desde el listener de mensajes
+        window.googleAuthCheckInterval = checkAuth;
+
         // Limpiar el listener de mensajes
         window.removeEventListener("message", messageListener);
 
@@ -424,9 +443,18 @@ export default function setupSignup() {
             "Autenticación con Google exitosa a través de localStorage"
           );
           showToast(`Welcome, ${user.firstName}!`);
-          navigateTo("dashboard");
+
+          // Redirigir al dashboard después de un breve momento
+          setTimeout(() => {
+            navigateTo("dashboard");
+          }, 300);
         } catch (e) {
           console.error("Error al procesar datos de usuario:", e);
+          // Restablecer botón
+          buttonText.textContent = "Create Account";
+          spinner.classList.add("hidden");
+          submitButton.disabled = false;
+          showToast("Error processing authentication", true);
         }
       }
 
@@ -440,10 +468,22 @@ export default function setupSignup() {
               const user = JSON.parse(localStorage.getItem("user"));
               console.log("Autenticación detectada después de cerrar ventana");
               showToast(`Welcome, ${user.firstName}!`);
-              navigateTo("dashboard");
+
+              setTimeout(() => {
+                navigateTo("dashboard");
+              }, 300);
             } catch (e) {
               console.error("Error al procesar datos de usuario:", e);
+              // Restablecer botón
+              buttonText.textContent = "Create Account";
+              spinner.classList.add("hidden");
+              submitButton.disabled = false;
             }
+          } else {
+            // Si la ventana se cerró pero no hay token, restaurar botón
+            buttonText.textContent = "Create Account";
+            spinner.classList.add("hidden");
+            submitButton.disabled = false;
           }
           clearInterval(checkAuth);
         }
@@ -457,6 +497,11 @@ export default function setupSignup() {
     setTimeout(() => {
       clearInterval(checkAuth);
       window.removeEventListener("message", messageListener);
+
+      // Restaurar botón si no se completó la autenticación
+      buttonText.textContent = "Create Account";
+      spinner.classList.add("hidden");
+      submitButton.disabled = false;
     }, 30000);
   });
 

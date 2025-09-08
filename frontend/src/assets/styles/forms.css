@@ -1,0 +1,53 @@
+/* Estilos para formularios: campos, etiquetas, validación */
+@import "variables.css";
+
+/* Form Fields y Labels */
+.form-field {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  position: relative;
+  z-index: 2;
+}
+
+/* Validación de formularios */
+.tooltip-error {
+  display: none;
+  position: relative;
+  background-color: #f8d7da;
+  color: #721c24;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 12px;
+  margin-top: 4px;
+  width: 100%;
+}
+
+.tooltip-error.visible {
+  display: block;
+  margin-top: 8px;
+}
+
+input.error {
+  border: 1px solid #dc3545 !important;
+}
+
+input.valid {
+  border: 1px solid #28a745 !important;
+}
+
+/* Estado de botones */
+.login-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Hidden helper class */
+.hidden {
+  display: none;
+}
