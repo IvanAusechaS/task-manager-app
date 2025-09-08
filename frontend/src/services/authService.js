@@ -54,9 +54,22 @@ export async function logout() {
  * @param {string} email - User's email for password recovery
  * @returns {Promise<Object>} Recovery confirmation
  */
-export async function recoverPassword(email) {
+export async function sendPasswordResetEmail(email) {
+  console.log("Sending password reset request for:", email);
   // Recovery doesn't require auth token
   return post("/auth/recover-password", { email }, false);
+}
+
+/**
+ * Reset user password using token from email
+ *
+ * @param {string} token - Reset token from email
+ * @param {string} newPassword - New password to set
+ * @returns {Promise<Object>} Reset confirmation
+ */
+export async function resetPassword(token, newPassword) {
+  // Reset doesn't require auth token
+  return post("/auth/reset-password", { token, newPassword }, false);
 }
 
 /**

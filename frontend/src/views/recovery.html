@@ -1,0 +1,141 @@
+<div class="login-container">
+  <div class="image-section">
+    <img src="/src/assets/cover.jpg" alt="Image" class="wall-image" />
+  </div>
+
+  <div class="form-section">
+    <img src="/src/assets/google-icon.png" alt="Icon" />
+    <h1>Recover your password</h1>
+    <span>Enter your email to receive recovery instructions</span>
+
+    <form id="recovery-form" method="POST" class="login-form">
+      <div>
+        <label for="email">Email</label><br />
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="Enter your email"
+          required
+        />
+      </div>
+
+      <button type="submit" class="login-button">Send recovery email</button>
+    </form>
+
+    <div id="success-message" style="display: none">
+      <div class="alert alert-success">
+        <h3>Email Sent!</h3>
+        <p>
+          If an account exists with that email, you will receive a recovery link
+          shortly. Please check your inbox and spam folder.
+        </p>
+        <p>The link will expire in 1 hour for security reasons.</p>
+        <button class="login-button" id="back-to-login">Back to Login</button>
+      </div>
+    </div>
+
+    <div id="error-message" class="alert alert-error" style="display: none">
+      Error sending recovery email. Please try again.
+    </div>
+
+    <div class="sign-up">
+      <span>Remember your password? <a href="#" id="go-login">Login</a></span>
+    </div>
+  </div>
+</div>
+
+<!-- Reset password modal -->
+<div id="reset-password-modal" class="modal" style="display: none">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Reset Password</h2>
+      <span class="close-modal">&times;</span>
+    </div>
+    <div class="modal-body">
+      <form id="reset-password-form" method="POST">
+        <div>
+          <label for="new-password">New Password</label><br />
+          <input
+            type="password"
+            id="new-password"
+            name="new-password"
+            placeholder="Enter your new password"
+            required
+            minlength="6"
+          />
+        </div>
+        <div>
+          <label for="confirm-password">Confirm Password</label><br />
+          <input
+            type="password"
+            id="confirm-password"
+            name="confirm-password"
+            placeholder="Confirm your new password"
+            required
+            minlength="6"
+          />
+        </div>
+        <input type="hidden" id="reset-token" name="token" />
+        <button type="submit" class="login-button">Reset Password</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add styles for alerts -->
+<style>
+  .alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+  }
+  .alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+  .alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+  #success-message h3 {
+    margin-top: 0;
+  }
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+  .modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 500px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .close-modal {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .close-modal:hover {
+    color: black;
+  }
+</style>

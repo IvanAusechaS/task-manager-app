@@ -1,0 +1,42 @@
+<div class="login-container">
+  <div class="image-section">
+    <img src="/src/assets/cover.jpg" alt="Image" class="wall-image" />
+  </div>
+
+  <div class="form-section">
+    <img src="/src/assets/google-icon.png" alt="Icon" />
+    <h1>Reset your password</h1>
+    <span>Please enter your new password</span>
+
+    <form id="reset-password-form" method="POST" class="login-form">
+      <div>
+        <label for="new-password">New Password</label><br />
+        <input
+          type="password"
+          id="new-password"
+          name="new-password"
+          placeholder="Enter your new password"
+          required
+          minlength="6"
+        />
+      </div>
+      <div>
+        <label for="confirm-password">Confirm Password</label><br />
+        <input
+          type="password"
+          id="confirm-password"
+          name="confirm-password"
+          placeholder="Confirm your new password"
+          required
+          minlength="6"
+        />
+      </div>
+      <input type="hidden" id="reset-token" name="token" />
+      <button type="submit" class="login-button">Reset Password</button>
+    </form>
+
+    <div class="sign-up">
+      <span>Remember your password? <a href="#" id="go-login">Login</a></span>
+    </div>
+  </div>
+</div>

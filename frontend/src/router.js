@@ -6,6 +6,13 @@ export async function navigateTo(viewName) {
     // Convertir a formato de archivo (primera letra minúscula)
     const fileViewName = viewName.charAt(0).toLowerCase() + viewName.slice(1);
 
+    // Caso especial para auth-callback
+    if (viewName === "auth-callback") {
+      // Redireccionar a la página completa, no como una SPA
+      window.location.href = "/src/views/auth-callback.html";
+      return;
+    }
+
     // Busca primero con la ruta relativa correcta para desarrollo
     let res;
     try {

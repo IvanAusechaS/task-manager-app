@@ -4,14 +4,20 @@ import { logout, getCurrentUser } from "../services/authService.js";
 import { get, post, put, del } from "../services/api.js";
 
 export default function setupDashboard() {
+  console.log("Inicializando dashboard...");
+
   // Verificar si el usuario está autenticado
+  const token = localStorage.getItem("token");
   const user = getCurrentUser();
 
-  if (!user) {
-    // Redireccionar a login si no hay usuario
+  if (!token || !user) {
+    console.log("No hay token o usuario. Redirigiendo a login...");
+    // Redireccionar a login si no hay usuario o token
     navigateTo("login");
     return;
   }
+
+  console.log("Usuario autenticado encontrado:", user.firstName);
 
   // Estado global para tareas y tarea actual
   let tasks = [];
@@ -57,11 +63,45 @@ export default function setupDashboard() {
    */
   async function initializeDashboard() {
     try {
+      console.log("Iniciando inicialización del dashboard");
+
+      // Verificar autenticación antes de continuar
+      if (!localStorage.getItem("token")) {
+        throw new Error("No hay token disponible");
+      }
+
+      // Intentar cargar tareas
       await loadTasks();
+      console.log("Tareas cargadas exitosamente");
+
+      // Renderizar las tareas
       renderTasks();
+      console.log("Dashboard inicializado completamente");
     } catch (error) {
       console.error("Error initializing dashboard:", error);
-      alert("Error loading tasks. Please refresh the page.");
+
+      // Si es un error de autenticación, intentar redirigir a login
+      if (
+        error.message.includes("token") ||
+        error.message.includes("Authentication")
+      ) {
+        console.log(
+          "Error de autenticación en inicialización, redirigiendo a login"
+        );
+        alert("Por favor, inicia sesión para acceder al dashboard.");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setTimeout(() => navigateTo("login"), 300);
+      } else {
+        // Para otros errores, mostrar mensaje pero permitir continuar
+        alert(
+          "Hubo un problema al cargar tus tareas. Algunas funcionalidades podrían no estar disponibles."
+        );
+
+        // Renderizar interfaz vacía
+        tasks = [];
+        renderTasks();
+      }
     }
   }
 
@@ -70,12 +110,43 @@ export default function setupDashboard() {
    */
   async function loadTasks() {
     try {
+      console.log("Cargando tareas del usuario...");
+
+      // Verificar nuevamente si el token existe antes de hacer la solicitud
+      if (!localStorage.getItem("token")) {
+        console.error("No hay token disponible para cargar tareas");
+        throw new Error("No hay token de autenticación");
+      }
+
       const response = await get("/tasks");
-      tasks = response.tasks || [];
-      updateTaskCounter();
+      console.log("Tareas recibidas:", response);
+
+      if (response && response.tasks) {
+        tasks = response.tasks || [];
+        console.log(`Se cargaron ${tasks.length} tareas`);
+        updateTaskCounter();
+      } else {
+        console.warn("La respuesta no contiene tareas:", response);
+        tasks = [];
+        updateTaskCounter();
+      }
     } catch (error) {
       console.error("Error loading tasks:", error);
+
+      // Si es un error de autenticación, intentar redirigir a login
+      if (
+        error.message.includes("Authentication") ||
+        error.message.includes("401")
+      ) {
+        console.log("Error de autenticación, redirigiendo a login");
+        alert("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setTimeout(() => navigateTo("login"), 500);
+      }
+
       tasks = [];
+      updateTaskCounter();
       throw error;
     }
   }
