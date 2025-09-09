@@ -29,16 +29,21 @@ class EmailService {
     const resetUrl = `${process.env.FRONTEND_URL}/reset?token=${resetToken}`;
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "Recuperación de Contraseña - TidyTasks",
-      html: `
-                <h1>Has solicitado un cambio de contraseña</h1>
-                <p>Por favor, haz clic en el siguiente enlace para restablecer tu contraseña:</p>
-                <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background-color: #4a6ee0; color: white; text-decoration: none; border-radius: 5px;">Restablecer Contraseña</a>
-                <p>Este enlace expirará en 1 hora.</p>
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: "Recuperación de Contraseña - TidyTasks",
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h1 style="color: #4a6ee0;">Recuperación de Contraseña</h1>
+                <p>Has solicitado restablecer tu contraseña en TidyTasks.</p>
+                <p>Haz clic en el siguiente botón para crear una nueva contraseña:</p>
+                <a href="${resetUrl}" style="display: inline-block; padding: 12px 24px; background-color: #4a6ee0; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">Restablecer Contraseña</a>
+                <p style="margin-top: 20px;">Este enlace expirará en 1 hora por seguridad.</p>
                 <p>Si no solicitaste este cambio, puedes ignorar este correo.</p>
-            `,
+                <hr style="margin: 20px 0;">
+                <p style="color: #666; font-size: 12px;">TidyTasks - Organiza tu vida</p>
+            </div>
+        `,
     };
 
     try {
