@@ -28,6 +28,8 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  overflow-x: hidden; /* Prevenir scroll horizontal */
+  padding-top: 60px; /* Espacio para el header fijo */
 }
 
 h1 {
@@ -100,10 +102,11 @@ h1 {
   position: fixed;
   top: 20px;
   right: 20px;
-  z-index: 9999;
+  z-index: 99999; /* Aumentado para asegurar que esté por encima de todo */
   display: flex;
   flex-direction: column;
   gap: 10px;
+  pointer-events: none; /* Permite hacer clic a través del contenedor */
 }
 
 .toast {
@@ -117,6 +120,7 @@ h1 {
   opacity: 0;
   transform: translateX(30px);
   transition: all 0.3s ease;
+  pointer-events: auto; /* Los toasts individuales sí pueden recibir clics */
 }
 
 .toast.show {

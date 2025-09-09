@@ -256,13 +256,16 @@ export default function setupDashboard() {
       // Mostrar estado vacío
       elements.emptyState.style.display = "flex";
       elements.kanbanBoard.style.display = "none";
-      // Ocultar el botón de nueva tarea en el header
+      // Ocultar el botón de nueva tarea en el header, solo mostrar el botón Create First Task
       elements.newTaskButton.style.display = "none";
+      elements.createFirstTaskBtn.style.display = "block";
     } else {
       // Mostrar tablero kanban
       elements.emptyState.style.display = "none";
       elements.kanbanBoard.style.display = "grid";
       elements.newTaskButton.style.display = "block";
+      // Ocultar botón de primera tarea cuando ya existen tareas
+      elements.createFirstTaskBtn.style.display = "none";
 
       // Limpiar contenedores
       document.getElementById("todo-tasks").innerHTML = "";
@@ -437,8 +440,10 @@ export default function setupDashboard() {
     const minutes = String(now.getMinutes()).padStart(2, '0');
     document.getElementById("task-time").value = `${hours}:${minutes}`;
     
-    // Estado por defecto: 'Por hacer'
-    document.getElementById("task-status").value = "Por hacer";
+    // Estado por defecto: 'Por hacer' y deshabilitar el select
+    const statusSelect = document.getElementById("task-status");
+    statusSelect.value = "Por hacer";
+    statusSelect.disabled = true;
 
     // Limpiar mensajes de error
     clearFormErrors();
@@ -475,7 +480,11 @@ export default function setupDashboard() {
       document.getElementById("task-time").value = `${hours}:${minutes}`;
     }
 
-    document.getElementById("task-status").value = task.status;
+    // Habilitar el select de estado y establecer el valor actual
+    const statusSelect = document.getElementById("task-status");
+    statusSelect.disabled = false;
+    statusSelect.value = task.status;
+    
     document.getElementById("task-id").value = task._id;
 
     // Limpiar mensajes de error
@@ -701,6 +710,7 @@ export default function setupDashboard() {
     };
 
     const taskId = document.getElementById("task-id").value;
+    let serverResponse = null;
 
     try {
       // Mostrar spinner durante la operación
@@ -712,12 +722,12 @@ export default function setupDashboard() {
         showToast("Tarea actualizada correctamente", "success");
       } else {
         // Crear nueva tarea
-        const newTask = await createTask(formData);
+        serverResponse = await createTask(formData);
         showToast("Tarea creada correctamente", "success");
         
         // Si tenemos la respuesta del servidor, añadir la tarea localmente
-        if (newTask && newTask._id) {
-          tasks.push(newTask);
+        if (serverResponse && serverResponse._id) {
+          tasks.push(serverResponse);
         }
       }
       
@@ -727,8 +737,8 @@ export default function setupDashboard() {
       // Cerrar modal
       closeModal();
       
-      // Si no tenemos la tarea del servidor, cargar todas de nuevo
-      if (taskId || !newTask || !newTask._id) {
+      // Si no tenemos la tarea del servidor o estamos editando, cargar todas de nuevo
+      if (taskId || !serverResponse || !serverResponse._id) {
         await loadTasks();
       }
       
@@ -799,7 +809,18 @@ export default function setupDashboard() {
     }
 
     try {
+      // Mostrar spinner mientras se elimina
+      showSpinner();
+      
+      // Llamar al API para eliminar
       await del(`/tasks/${taskId}`);
+      
+      // Ocultar spinner
+      hideSpinner();
+      
+      // Usar alert en lugar de toast para este caso específico
+      // (no es la mejor práctica UX, pero soluciona el problema visual)
+      alert("Tarea eliminada correctamente");
       
       // Actualizar el estado local sin tener que recargar del servidor
       tasks = tasks.filter(task => task._id !== taskId);
@@ -807,14 +828,14 @@ export default function setupDashboard() {
       // Actualizar la UI
       updateTaskCounter();
       renderTasks();
-      
-      // Mostrar notificación
-      showToast("Tarea eliminada correctamente", "success");
     } catch (error) {
       console.error("Error deleting task:", error);
       
-      // Mostrar error con toast
-      showToast("Error al eliminar la tarea. Inténtalo de nuevo.", "error");
+      // Ocultar spinner
+      hideSpinner();
+      
+      // Mostrar error con alert
+      alert("Error al eliminar la tarea. Inténtalo de nuevo.");
       
       // En caso de error grave, recargar todas las tareas
       try {
