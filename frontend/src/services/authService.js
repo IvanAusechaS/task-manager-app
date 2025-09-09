@@ -3,6 +3,8 @@
  * Manages user authentication, registration, and session state
  */
 
+const API_BASE_URL = "https://task-manager-app-aa92.onrender.com";  
+
 import { post } from "./api.js";
 
 /**
