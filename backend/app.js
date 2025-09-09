@@ -13,6 +13,10 @@ import taskRoutes from './routes/tasks.routes.js';
 // Configurar path para ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const allowedOrigins = [
+  'https://tidyytasks.vercel.app',
+  'http://localhost:3001'
+];
 
 // Load environment variables from root
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
@@ -43,15 +47,21 @@ app.use(session({
         maxAge: 24 * 60 * 60 * 1000 // 24 horas
     }
 }));
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3001',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Middleware
-app.use(cors());
 app.use(express.json());
 app.use(passport.initialize());
 app.use(passport.session());
