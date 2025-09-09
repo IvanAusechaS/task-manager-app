@@ -6,15 +6,22 @@ export async function navigateTo(viewName) {
     // Convertir a formato de archivo (primera letra minúscula)
     const fileViewName = viewName.charAt(0).toLowerCase() + viewName.slice(1);
 
-    // Busca primero con la ruta relativa correcta para desarrollo
+    // Caso especial para auth-callback
+    if (viewName === "auth-callback") {
+      // Redireccionar a la página completa, no como una SPA
+      window.location.href = "/views/auth-callback.html";
+      return;
+    }
+
+    // Primero intentamos con la ruta de producción (/views)
     let res;
     try {
-      res = await fetch(`/src/views/${fileViewName}.html`);
-      if (!res.ok) throw new Error("Vista no encontrada con ruta relativa");
-    } catch (e) {
-      // Si falla, intenta con ruta absoluta
-      console.log("Intentando con ruta absoluta...");
       res = await fetch(`/views/${fileViewName}.html`);
+      if (!res.ok) throw new Error("Vista no encontrada en ruta de producción");
+    } catch (e) {
+      // Si falla, intenta con ruta de desarrollo
+      console.log("Intentando con ruta de desarrollo...");
+      res = await fetch(`/src/views/${fileViewName}.html`);
     }
 
     if (!res.ok) {
@@ -22,8 +29,40 @@ export async function navigateTo(viewName) {
     }
 
     const html = await res.text();
-    document.querySelector("#app").innerHTML = html;
+
+    // Extraer los enlaces CSS del contenido HTML (si hay alguno)
+    const cssLinks = [];
+    const linkRegex =
+      /<link\s+rel=["']stylesheet["']\s+href=["']([^"']+)["']\s*\/?>/g;
+    let match;
+
+    while ((match = linkRegex.exec(html)) !== null) {
+      cssLinks.push(match[1]);
+    }
+
+    // Limpiar el HTML de los enlaces CSS
+    const cleanHtml = html.replace(
+      /<link\s+rel=["']stylesheet["']\s+href=["'][^"']+["']\s*\/?>/g,
+      ""
+    );
+
+    document.querySelector("#app").innerHTML = cleanHtml;
     console.log(`Vista ${viewName} cargada correctamente`);
+
+    // Agregar los enlaces CSS extraídos al head del documento
+    if (cssLinks.length > 0) {
+      cssLinks.forEach((href) => {
+        // Verificar si el link ya existe para evitar duplicados
+        const existingLink = document.querySelector(`link[href="${href}"]`);
+        if (!existingLink) {
+          const link = document.createElement("link");
+          link.rel = "stylesheet";
+          link.href = href;
+          document.head.appendChild(link);
+          console.log(`CSS agregado: ${href}`);
+        }
+      });
+    }
 
     // Importa el script asociado a la vista (ej: login.js, signup.js, recovery.js)
     try {

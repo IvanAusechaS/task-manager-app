@@ -1,0 +1,63 @@
+<link rel="stylesheet" href="/src/assets/styles/forms.css" />
+<link rel="stylesheet" href="/src/assets/styles/alerts.css" />
+<link rel="stylesheet" href="/src/assets/styles/toast.css" />
+<link rel="stylesheet" href="/src/assets/styles/spinners.css" />
+
+<div class="login-container">
+  <div class="image-section">
+    <img src="/src/assets/cover.jpg" alt="Image" class="wall-image" />
+  </div>
+
+  <div class="form-section">
+    <img src="/src/assets/google-icon.png" alt="Icon" />
+    <h1>Recover your password</h1>
+    <span>Enter your email to receive recovery instructions</span>
+
+    <!-- Toast notification -->
+    <div id="toast-notification" class="toast-notification" aria-live="polite">
+      <span id="toast-message"></span>
+    </div>
+
+    <form id="recovery-form" method="POST" class="login-form">
+      <div class="form-field">
+        <label for="email" class="form-label">Email</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="Enter your email"
+          required
+        />
+      </div>
+
+      <button type="submit" id="recovery-button" class="login-button">
+        <span id="button-text">Send recovery link</span>
+        <span id="spinner" class="spinner hidden"></span>
+      </button>
+    </form>
+
+    <div id="success-message" class="success-message">
+      <div class="alert alert-success">
+        <h3>Email Sent!</h3>
+        <p>
+          If an account exists with that email, you will receive a recovery link
+          shortly. Please check your inbox and spam folder.
+        </p>
+        <p>The link will expire in 1 hour for security reasons.</p>
+        <button class="login-button" id="back-to-login">Back to Login</button>
+      </div>
+    </div>
+
+    <div
+      id="error-message"
+      class="alert alert-error error-message"
+      aria-live="polite"
+    >
+      Error sending recovery email. Please try again.
+    </div>
+
+    <div class="sign-up">
+      <span>Remember your password? <a href="#" id="go-login">Login</a></span>
+    </div>
+  </div>
+</div>

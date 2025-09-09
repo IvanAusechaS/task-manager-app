@@ -1,0 +1,82 @@
+<link rel="stylesheet" href="/assets/styles/forms.css" />
+<link rel="stylesheet" href="/assets/styles/alerts.css" />
+<link rel="stylesheet" href="/assets/styles/toast.css" />
+<link rel="stylesheet" href="/assets/styles/spinners.css" />
+
+<div class="login-container">
+  <div class="image-section">
+    <img src="/cover.jpg" alt="Image" class="wall-image" />
+  </div>
+
+  <div class="form-section">
+    <img src="/google-icon.png" alt="Icon" />
+    <h1>Reset your password</h1>
+    <span>Please enter your new password</span>
+
+    <!-- Toast notification -->
+    <div id="toast-notification" class="toast-notification" aria-live="polite">
+      <span id="toast-message"></span>
+    </div>
+
+    <form id="reset-password-form" method="POST" class="login-form">
+      <div class="form-field">
+        <label for="new-password" class="form-label">New Password</label>
+        <input
+          type="password"
+          id="new-password"
+          name="new-password"
+          placeholder="Min. 8 chars with uppercase, lowercase & number"
+          required
+          minlength="8"
+          aria-describedby="password-requirements"
+        />
+        <div id="new-password-error" class="tooltip-error"></div>
+        <div id="password-requirements" class="password-requirements">
+          Password must contain at least 8 characters, including uppercase,
+          lowercase and number.
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="confirm-password" class="form-label"
+          >Confirm Password</label
+        >
+        <input
+          type="password"
+          id="confirm-password"
+          name="confirm-password"
+          placeholder="Confirm your new password"
+          required
+          minlength="8"
+        />
+        <div id="confirm-password-error" class="tooltip-error"></div>
+      </div>
+
+      <input type="hidden" id="reset-token" name="token" />
+
+      <button type="submit" id="reset-button" class="login-button">
+        <span id="button-text">Reset Password</span>
+        <span id="spinner" class="spinner hidden"></span>
+      </button>
+    </form>
+
+    <div id="success-message" class="success-message">
+      <div class="alert alert-success">
+        <h3>Password Reset Successful!</h3>
+        <p>
+          Your password has been successfully reset. You can now log in with
+          your new password.
+        </p>
+        <button class="login-button" id="back-to-login">Go to Login</button>
+      </div>
+    </div>
+
+    <div id="error-message" class="alert alert-error error-message">
+      Error resetting password. Please try again.
+    </div>
+
+    <div class="sign-up">
+      <span>Remember your password? <a href="#" id="go-login">Login</a></span>
+    </div>
+  </div>
+</div>
