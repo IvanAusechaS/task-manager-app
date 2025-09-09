@@ -1,3 +1,63 @@
+// Función para obtener la ruta actual
+function getCurrentRoute() {
+  const path = window.location.pathname;
+  const hash = window.location.hash.slice(1);
+  
+  // Extraer solo el path sin query parameters
+  const cleanPath = path.split('?')[0].slice(1);
+  const cleanHash = hash.split('?')[0];
+  
+  return cleanHash || cleanPath || 'login';
+}
+
+// Función para obtener query parameters
+function getQueryParams() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams;
+}
+
+// Función para manejar las rutas
+export function handleRouting() {
+  const route = getCurrentRoute();
+  const queryParams = getQueryParams();
+  
+  console.log('Current route:', route);
+  console.log('Query params:', Object.fromEntries(queryParams));
+  
+  // Mapeo de rutas
+  const routeMap = {
+    '': 'login',
+    'login': 'login',
+    'signup': 'signup', 
+    'recovery': 'recovery',
+    'reset': 'reset',
+    'dashboard': 'dashboard',
+    'auth-callback': 'auth-callback'
+  };
+  
+  const viewName = routeMap[route] || 'login';
+  
+  // Verificación especial para reset - debe tener token
+  if (viewName === 'reset') {
+    const token = queryParams.get('token');
+    if (!token) {
+      console.warn('Reset route accessed without token, redirecting to recovery');
+      navigateTo('recovery');
+      return;
+    }
+  }
+  
+  navigateTo(viewName);
+}
+
+// Función para navegar programáticamente
+export function navigate(route) {
+  // Actualizar la URL
+  history.pushState({}, '', `/${route}`);
+  // Cargar la vista
+  navigateTo(route);
+}
+
 // Función para cargar vistas dinámicamente
 export async function navigateTo(viewName) {
   try {
@@ -64,9 +124,8 @@ export async function navigateTo(viewName) {
       });
     }
 
-    // Importa el script asociado a la vista (ej: login.js, signup.js, recovery.js)
+    // Importa el script asociado a la vista
     try {
-      // Intentar cargar el script con el nombre normalizado (primera letra minúscula)
       console.log(`Intentando cargar script: ./views/${fileViewName}.js`);
       const module = await import(`./views/${fileViewName}.js`);
       if (module.default) {
@@ -83,3 +142,9 @@ export async function navigateTo(viewName) {
     ).innerHTML = `<h2>Error al cargar ${viewName}</h2><p>${error.message}</p>`;
   }
 }
+
+// Escuchar cambios en el historial del navegador
+window.addEventListener('popstate', handleRouting);
+
+// Inicializar el routing cuando se carga la página
+document.addEventListener('DOMContentLoaded', handleRouting);

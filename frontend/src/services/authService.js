@@ -5,6 +5,9 @@
 
 import { post } from "./api.js";
 
+// Definir la URL base de la API
+const API_BASE_URL = 'https://task-manager-app-aa92.onrender.com';
+
 /**
  * Log in a user with email and password
  *
@@ -81,23 +84,31 @@ export async function sendPasswordResetEmail(email) {
  * @returns {Promise<Object>} Reset confirmation
  */
 export async function resetPassword(token, newPassword) {
+  console.log("Resetting password with token:", token);
+  
   try {
-    // Reset doesn't require auth token
-    const result = await post(
-      "/auth/reset-password",
-      { token, newPassword },
-      false
-    );
-    return result;
+    const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 
+        token: token,
+        password: newPassword
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Reset password failed');
+    }
+
+    const data = await response.json();
+    console.log("Reset password response:", data);
+    return data;
   } catch (error) {
     console.error("Error in resetPassword:", error);
-    // Devolver un objeto con formato similar a una respuesta exitosa pero con flag de error
-    return {
-      success: false,
-      message:
-        error.message ||
-        "Error al restablecer la contraseña. Intenta de nuevo más tarde.",
-    };
+    throw error;
   }
 }
 

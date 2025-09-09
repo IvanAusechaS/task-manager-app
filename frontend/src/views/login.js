@@ -2,7 +2,6 @@
 import { login } from "../services/authService.js";
 import { navigateTo } from "../router.js";
 import { getCurrentUser } from "../services/authService.js";
-import { initiateGoogleAuth } from "../utils/safe-google-auth.js";
 
 export default function setupLogin() {
   // Referencias a elementos del DOM
@@ -260,18 +259,35 @@ export default function setupLogin() {
 
   // Botón de login con Google
   document.querySelector(".google-login").addEventListener("click", () => {
+<<<<<<< HEAD
     // URL específica para Google Auth (usar la URL correcta según el entorno)
     const isProduction = window.location.hostname !== "localhost";
     const baseUrl = isProduction
       ? "https://task-manager-app-rmbc.onrender.com"
       : "http://localhost:3001";
     const googleAuthUrl = `${baseUrl}/api/auth/google`;
+=======
+    // URL limpia sin parámetros adicionales
+    const googleAuthUrl = "https://task-manager-app-aa92.onrender.com/api/auth/google";
+
+    // Guardar timestamp para verificar autenticación reciente
+    localStorage.setItem("google_auth_attempt", Date.now().toString());
+
+    // Crear ventana de autenticación.
+    const authWindow = window.open(
+        googleAuthUrl,
+        "googleAuth",
+        "width=600,height=700,top=100,left=100"
+    );
+
+>>>>>>> origin/main
 
     // Mostrar spinner durante la autenticación
     buttonText.textContent = "Authenticating...";
     spinner.classList.remove("hidden");
     submitButton.disabled = true;
 
+<<<<<<< HEAD
     // Usar el nuevo método seguro para iniciar la autenticación
     const auth = initiateGoogleAuth(googleAuthUrl);
 
@@ -300,5 +316,125 @@ export default function setupLogin() {
         }, 300);
       }
     });
+=======
+    // Configurar listener para mensajes de la ventana emergente
+    const messageListener = function (event) {
+      // Verificar que el mensaje sea de autenticación exitosa
+      if (event.data && event.data.type === "AUTH_SUCCESS") {
+        // Limpiar listener para evitar duplicados
+        window.removeEventListener("message", messageListener);
+
+        // Limpiar cualquier intervalo de verificación que pueda estar corriendo
+        if (window.googleAuthCheckInterval) {
+          clearInterval(window.googleAuthCheckInterval);
+          delete window.googleAuthCheckInterval;
+        }
+
+        // Procesar el usuario autenticado
+        const user = event.data.user;
+        if (user) {
+          console.log("Autenticación con Google exitosa a través de mensaje");
+
+          // Mostrar toast y redirigir al dashboard
+          showToast(`¡Bienvenido, ${user.firstName}!`);
+
+          // Redirigir al dashboard después de un breve momento
+          setTimeout(() => {
+            navigateTo("dashboard");
+          }, 300);
+        }
+      }
+    };
+
+    // Registrar el listener de mensajes
+    window.addEventListener("message", messageListener);
+
+    // Verificador alternativo que comprueba periódicamente si hay un nuevo token
+    const checkAuth = setInterval(() => {
+      const authAttemptTime = parseInt(
+        localStorage.getItem("google_auth_attempt") || "0"
+      );
+      const currentTime = Date.now();
+      const token = localStorage.getItem("token");
+
+      // Si hay un token nuevo dentro de la ventana de tiempo relevante
+      if (token && currentTime - authAttemptTime < 30000) {
+        clearInterval(checkAuth);
+
+        // Guardar la referencia global para poder cancelarla desde el listener de mensajes
+        window.googleAuthCheckInterval = checkAuth;
+
+        // Limpiar el listener de mensajes
+        window.removeEventListener("message", messageListener);
+
+        try {
+          const user = JSON.parse(localStorage.getItem("user"));
+          console.log(
+            "Autenticación con Google exitosa a través de localStorage"
+          );
+
+          // Mostrar toast y redirigir al dashboard
+          showToast(`¡Bienvenido, ${user.firstName}!`);
+
+          // Redirigir al dashboard
+          setTimeout(() => {
+            navigateTo("dashboard");
+          }, 300);
+        } catch (e) {
+          console.error("Error al procesar datos de usuario:", e);
+          // Restablecer botón
+          buttonText.textContent = "Login";
+          spinner.classList.add("hidden");
+          submitButton.disabled = false;
+          showToast("Error processing authentication", true);
+        }
+      }
+
+      // Verificar si la ventana se cerró sin errores COOP
+      try {
+        if (authWindow && authWindow.closed) {
+          // Intentar una última verificación del token
+          const newToken = localStorage.getItem("token");
+          if (newToken && newToken !== token) {
+            try {
+              const user = JSON.parse(localStorage.getItem("user"));
+              console.log("Autenticación detectada después de cerrar ventana");
+
+              showToast(`¡Bienvenido, ${user.firstName}!`);
+              setTimeout(() => {
+                navigateTo("dashboard");
+              }, 300);
+            } catch (e) {
+              console.error("Error al procesar datos de usuario:", e);
+              // Restablecer botón
+              buttonText.textContent = "Login";
+              spinner.classList.add("hidden");
+              submitButton.disabled = false;
+            }
+          } else {
+            // Si la ventana se cerró pero no hay token, restaurar botón
+            buttonText.textContent = "Login";
+            spinner.classList.add("hidden");
+            submitButton.disabled = false;
+          }
+          clearInterval(checkAuth);
+        }
+      } catch (e) {
+        // Ignorar errores COOP, seguir con el intervalo
+        console.log("No se puede acceder a la ventana (política COOP)");
+      }
+    }, 1000);
+
+    // Limitar el tiempo de verificación a 30 segundos
+    setTimeout(() => {
+      clearInterval(checkAuth);
+      window.removeEventListener("message", messageListener);
+
+      // Restaurar botón si no se completó la autenticación
+      buttonText.textContent = "Login";
+      spinner.classList.add("hidden");
+      submitButton.disabled = false;
+    }, 30000);
+>>>>>>> origin/main
   });
 }

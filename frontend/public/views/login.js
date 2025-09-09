@@ -259,22 +259,19 @@ export default function setupLogin() {
 
   // Botón de login con Google
   document.querySelector(".google-login").addEventListener("click", () => {
-    // URL específica para Google Auth
-    const googleAuthUrl = "http://localhost:3001/api/auth/google";
+    // URL limpia sin parámetros adicionales
+    const googleAuthUrl = "https://task-manager-app-aa92.onrender.com/api/auth/google";
 
     // Guardar timestamp para verificar autenticación reciente
     localStorage.setItem("google_auth_attempt", Date.now().toString());
 
-    // Crear id único para esta sesión de auth
-    const authSessionId = Math.random().toString(36).substring(2, 15);
-    localStorage.setItem("auth_session_id", authSessionId);
-
-    // Abrir ventana de autenticación con tamaño específico
+    // Crear ventana de autenticación.
     const authWindow = window.open(
-      googleAuthUrl,
-      "googleAuth",
-      "width=600,height=700,top=100,left=100"
+        googleAuthUrl,
+        "googleAuth",
+        "width=600,height=700,top=100,left=100"
     );
+
 
     // Mostrar spinner durante la autenticación
     buttonText.textContent = "Authenticating...";
