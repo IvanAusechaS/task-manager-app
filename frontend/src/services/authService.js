@@ -81,24 +81,24 @@ export async function sendPasswordResetEmail(email) {
  * @returns {Promise<Object>} Reset confirmation
  */
 export async function resetPassword(token, newPassword) {
-  try {
-    // Reset doesn't require auth token
-    const result = await post(
-      "/auth/reset-password",
-      { token, newPassword },
-      false
-    );
-    return result;
-  } catch (error) {
-    console.error("Error in resetPassword:", error);
-    // Devolver un objeto con formato similar a una respuesta exitosa pero con flag de error
-    return {
-      success: false,
-      message:
-        error.message ||
-        "Error al restablecer la contraseña. Intenta de nuevo más tarde.",
-    };
-  }
+    const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+            token: token,
+            password: newPassword  // ← Este es el cambio clave
+        })
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Reset password failed');
+    }
+
+    const data = await response.json();
+    return data;
 }
 
 /**
