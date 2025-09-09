@@ -3,7 +3,8 @@
  * Handles all HTTP requests to the backend API
  */
 
-const API_URL = "https://task-manager-app-l0ji.onrender.com/api"; // Adjusted to match backend PORT in .env
+
+const API_URL = "https://task-manager-app-l0ji.onrender.com/api"; 
 
 /**
  * Make a GET request to the API
@@ -29,14 +30,20 @@ export async function get(endpoint, requiresAuth = true) {
   const response = await fetch(`${API_URL}${endpoint}`, {
     method: "GET",
     headers,
+    credentials: "include", // Include cookies for cross-origin requests
+    mode: "cors", // Explicitly set CORS mode
   });
 
   // Handle response
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(
-      error.message || `Request failed with status ${response.status}`
-    );
+    try {
+      const error = await response.json();
+      throw new Error(
+        error.message || `Request failed with status ${response.status}`
+      );
+    } catch (e) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
   }
 
   return await response.json();
@@ -68,14 +75,20 @@ export async function post(endpoint, data, requiresAuth = true) {
     method: "POST",
     headers,
     body: JSON.stringify(data),
+    credentials: "include", // Include cookies for cross-origin requests
+    mode: "cors", // Explicitly set CORS mode
   });
 
   // Handle response
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(
-      error.message || `Request failed with status ${response.status}`
-    );
+    try {
+      const error = await response.json();
+      throw new Error(
+        error.message || `Request failed with status ${response.status}`
+      );
+    } catch (e) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
   }
 
   return await response.json();
@@ -107,14 +120,20 @@ export async function put(endpoint, data, requiresAuth = true) {
     method: "PUT",
     headers,
     body: JSON.stringify(data),
+    credentials: "include", // Include cookies for cross-origin requests
+    mode: "cors", // Explicitly set CORS mode
   });
 
   // Handle response
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(
-      error.message || `Request failed with status ${response.status}`
-    );
+    try {
+      const error = await response.json();
+      throw new Error(
+        error.message || `Request failed with status ${response.status}`
+      );
+    } catch (e) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
   }
 
   return await response.json();
@@ -144,14 +163,20 @@ export async function del(endpoint, requiresAuth = true) {
   const response = await fetch(`${API_URL}${endpoint}`, {
     method: "DELETE",
     headers,
+    credentials: "include", // Include cookies for cross-origin requests
+    mode: "cors", // Explicitly set CORS mode
   });
 
   // Handle response
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(
-      error.message || `Request failed with status ${response.status}`
-    );
+    try {
+      const error = await response.json();
+      throw new Error(
+        error.message || `Request failed with status ${response.status}`
+      );
+    } catch (e) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
   }
 
   return await response.json();

@@ -1,0 +1,64 @@
+/* Estilos para páginas de autenticación y callback */
+@import "variables.css";
+
+/* Estilos para la página de respuesta JSON */
+.auth-callback-page {
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color, #8a64c0)
+  );
+  padding: 20px;
+  margin: 0;
+  color: var(--text-dark);
+}
+
+.auth-container {
+  background: white;
+  border-radius: 10px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 100%;
+}
+
+.auth-container h1 {
+  color: var(--primary-color);
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+}
+
+.auth-container p {
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+.data-display {
+  background: #f7f9fc;
+  border-radius: 6px;
+  padding: 15px;
+  margin-top: 20px;
+  text-align: left;
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+}
+
+/* Estilos para contenedor de autenticación exitosa */
+.auth-success-container {
+  text-align: center;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  max-width: 500px;
+}

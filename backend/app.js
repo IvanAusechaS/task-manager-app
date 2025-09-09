@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 import connectDB from './config/database.js';
 import authRoutes from './routes/auth.routes.js';
 import taskRoutes from './routes/tasks.routes.js';
+import configureRenderDeployment from './render-specific.js';
 
 // Configurar path para ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -34,6 +35,13 @@ if (!process.env.JWT_SECRET) {
 
 const app = express();
 
+// Primero aplicar la configuración específica para Render
+// Esto debe ir antes de cualquier otro middleware
+if (process.env.NODE_ENV === 'production') {
+  configureRenderDeployment(app);
+  console.log('✅ Configuración específica para Render aplicada');
+}
+
 app.use(session({
     secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
@@ -43,12 +51,17 @@ app.use(session({
         maxAge: 24 * 60 * 60 * 1000 // 24 horas
     }
 }));
-app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+
+// Si estamos en desarrollo, usar configuración CORS estándar
+if (process.env.NODE_ENV !== 'production') {
+  console.log('🔧 Aplicando middleware CORS para desarrollo...');
+  app.use(cors({
+    origin: true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
-}));
+  }));
+}
 
 // Middleware
 app.use(cors());

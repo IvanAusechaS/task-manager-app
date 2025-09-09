@@ -1,0 +1,61 @@
+/* Estilos para notificaciones toast */
+@import "variables.css";
+
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 24px;
+  background-color: #d4edda;
+  color: #155724;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: none;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  max-width: 300px;
+}
+
+.toast-notification.toast-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.toast-notification.toast-error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.toast-notification.toast-info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.toast-notification.toast-warning {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.toast-notification.show {
+  display: block;
+  animation: fadeInOut 5s forwards;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
