@@ -42,7 +42,7 @@ export default function setupDashboard() {
       createFirstTaskBtn: document.getElementById("create-first-task"),
       addNewTaskBtn: document.getElementById("new-task-button"),
       modalTitle: document.getElementById("modal-title"),
-      submitButton: document.querySelector("#task-form .submit-button")
+      submitButton: document.querySelector("#task-form .submit-button"),
     };
   }
 
@@ -63,10 +63,10 @@ export default function setupDashboard() {
   elements.closeModalBtn.addEventListener("click", closeModal);
   elements.createFirstTaskBtn.addEventListener("click", openNewTaskModal);
   elements.addNewTaskBtn.addEventListener("click", openNewTaskModal);
-  
+
   // Configurar validación del formulario
   setupTaskFormValidation();
-  
+
   // Inicializar el área de anuncios de errores
   errorLiveRegion = document.getElementById("form-error-live");
   if (!errorLiveRegion) {
@@ -74,7 +74,10 @@ export default function setupDashboard() {
     errorLiveRegion.id = "form-error-live";
     errorLiveRegion.className = "form-error-live";
     errorLiveRegion.setAttribute("aria-live", "polite");
-    elements.taskForm.insertBefore(errorLiveRegion, elements.taskForm.firstChild);
+    elements.taskForm.insertBefore(
+      errorLiveRegion,
+      elements.taskForm.firstChild
+    );
   }
 
   // Inicializar dashboard
@@ -101,13 +104,15 @@ export default function setupDashboard() {
         try {
           console.log("Actualizando tareas automáticamente...");
           const originalTasks = [...tasks]; // Guardar estado actual
-          
+
           // Cargar tareas sin mostrar spinner
           await loadTasks(false);
-          
+
           // Renderizar solo si hay cambios
           if (JSON.stringify(originalTasks) !== JSON.stringify(tasks)) {
-            console.log("Se detectaron cambios en las tareas, actualizando vista...");
+            console.log(
+              "Se detectaron cambios en las tareas, actualizando vista..."
+            );
             renderTasks();
             showToast("Tareas actualizadas", "info");
           }
@@ -131,13 +136,16 @@ export default function setupDashboard() {
         console.log(
           "Error de autenticación en inicialización, redirigiendo a login"
         );
-        alert("Por favor, inicia sesión para acceder al dashboard.");
+        showToast(
+          "Por favor, inicia sesión para acceder al dashboard.",
+          "error"
+        );
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         setTimeout(() => navigateTo("login"), 300);
       } else {
         // Para otros errores, mostrar mensaje pero permitir continuar
-        alert(
+        showToast(
           "Hubo un problema al cargar tus tareas. Algunas funcionalidades podrían no estar disponibles."
         );
 
@@ -168,13 +176,13 @@ export default function setupDashboard() {
       }
 
       // Establecer un timeout para garantizar la respuesta en 500ms como máximo
-      const timeoutPromise = new Promise((_, reject) => 
+      const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error("Timeout al cargar tareas")), 500)
       );
-      
+
       // Hacer la solicitud al servidor
       const fetchPromise = get("/tasks");
-      
+
       // Utilizar race para tomar lo que termine primero
       const response = await Promise.race([fetchPromise, timeoutPromise]);
       console.log("Tareas recibidas:", response);
@@ -215,14 +223,20 @@ export default function setupDashboard() {
       } else if (error.message.includes("Timeout")) {
         // Manejar timeout específicamente
         if (showLoadingIndicator) {
-          showToast("No pudimos obtener tus tareas, inténtalo más tarde", "error");
+          showToast(
+            "No pudimos obtener tus tareas, inténtalo más tarde",
+            "error"
+          );
         }
         tasks = [];
         updateTaskCounter();
       } else {
         // Para otros errores (500, etc)
         if (showLoadingIndicator) {
-          showToast("No pudimos obtener tus tareas, inténtalo más tarde", "error");
+          showToast(
+            "No pudimos obtener tus tareas, inténtalo más tarde",
+            "error"
+          );
         }
         tasks = [];
         updateTaskCounter();
@@ -251,12 +265,12 @@ export default function setupDashboard() {
     document.getElementById("todo-counter").textContent = todoTasks.length;
     document.getElementById("doing-counter").textContent = doingTasks.length;
     document.getElementById("done-counter").textContent = doneTasks.length;
-    
+
     // Actualizar contadores en las pestañas móviles
     const todoTabCount = document.getElementById("todo-tab-count");
     const doingTabCount = document.getElementById("doing-tab-count");
     const doneTabCount = document.getElementById("done-tab-count");
-    
+
     if (todoTabCount) todoTabCount.textContent = todoTasks.length;
     if (doingTabCount) doingTabCount.textContent = doingTasks.length;
     if (doneTabCount) doneTabCount.textContent = doneTasks.length;
@@ -268,7 +282,7 @@ export default function setupDashboard() {
   function renderTasks() {
     // Ordenar tareas por fecha ascendente
     tasks.sort((a, b) => new Date(a.date) - new Date(b.date));
-    
+
     if (tasks.length === 0) {
       // Mostrar estado vacío
       elements.emptyState.style.display = "flex";
@@ -279,7 +293,7 @@ export default function setupDashboard() {
     } else {
       // Mostrar tablero kanban
       elements.emptyState.style.display = "none";
-      
+
       // Ajustar display según el tamaño de pantalla
       if (window.innerWidth <= 768) {
         elements.kanbanBoard.style.display = "flex";
@@ -287,7 +301,7 @@ export default function setupDashboard() {
       } else {
         elements.kanbanBoard.style.display = "grid";
       }
-      
+
       elements.newTaskButton.style.display = "block";
       // Ocultar botón de primera tarea cuando ya existen tareas
       elements.createFirstTaskBtn.style.display = "none";
@@ -310,68 +324,74 @@ export default function setupDashboard() {
         }
       });
     }
-    
+
     // Configurar tabs móviles
     setupMobileTabs();
-    
+
     // Responsividad: vista lista por defecto en pantallas <= 768px
     adjustLayoutForScreenSize();
-    
+
     // Añadir event listener para window resize si no existe ya
     if (!window.hasResizeListener) {
-      window.addEventListener('resize', function() {
+      window.addEventListener("resize", function () {
         // Debounce para no ejecutar constantemente durante el redimensionamiento
         if (window.resizeTimer) {
           clearTimeout(window.resizeTimer);
         }
-        window.resizeTimer = setTimeout(function() {
-          console.log("Adaptando layout para nuevo tamaño: " + window.innerWidth + "px");
+        window.resizeTimer = setTimeout(function () {
+          console.log(
+            "Adaptando layout para nuevo tamaño: " + window.innerWidth + "px"
+          );
           adjustLayoutForScreenSize();
         }, 250);
       });
       window.hasResizeListener = true;
     }
   }
-  
+
   /**
    * Configura el funcionamiento de las pestañas móviles
    */
   function setupMobileTabs() {
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const kanbanColumns = document.querySelectorAll('.kanban-column');
-    
+    const tabButtons = document.querySelectorAll(".tab-button");
+    const kanbanColumns = document.querySelectorAll(".kanban-column");
+
     // Mostrar por defecto la columna "To do"
     if (window.innerWidth <= 768) {
       // Ocultar todas las columnas primero
-      kanbanColumns.forEach(col => {
-        col.classList.remove('active-column');
+      kanbanColumns.forEach((col) => {
+        col.classList.remove("active-column");
       });
-      
+
       // Mostrar solo la columna "To do" por defecto
-      document.querySelector('.todo-column').classList.add('active-column');
-      
+      document.querySelector(".todo-column").classList.add("active-column");
+
       // Asegurarse de que el primer botón esté activo
-      tabButtons.forEach(btn => btn.classList.remove('active'));
-      document.querySelector('.tab-button[data-column="todo"]').classList.add('active');
+      tabButtons.forEach((btn) => btn.classList.remove("active"));
+      document
+        .querySelector('.tab-button[data-column="todo"]')
+        .classList.add("active");
     }
-    
+
     // Añadir event listeners a las pestañas
-    tabButtons.forEach(button => {
-      button.addEventListener('click', function() {
+    tabButtons.forEach((button) => {
+      button.addEventListener("click", function () {
         // Actualizar clases activas en los botones
-        tabButtons.forEach(btn => btn.classList.remove('active'));
-        this.classList.add('active');
-        
+        tabButtons.forEach((btn) => btn.classList.remove("active"));
+        this.classList.add("active");
+
         // Obtener la columna a mostrar
-        const columnType = this.getAttribute('data-column');
-        
+        const columnType = this.getAttribute("data-column");
+
         // Ocultar todas las columnas
-        kanbanColumns.forEach(col => {
-          col.classList.remove('active-column');
+        kanbanColumns.forEach((col) => {
+          col.classList.remove("active-column");
         });
-        
+
         // Mostrar la columna seleccionada
-        document.querySelector(`.${columnType}-column`).classList.add('active-column');
+        document
+          .querySelector(`.${columnType}-column`)
+          .classList.add("active-column");
       });
     });
   }
@@ -381,17 +401,18 @@ export default function setupDashboard() {
    */
   function adjustLayoutForScreenSize() {
     const width = window.innerWidth;
-    
+
     // Ajustes para tamaños de pantalla específicos
     if (width <= 320) {
       // Para pantallas muy pequeñas (320px)
       elements.kanbanBoard.style.overflowX = "hidden"; // Cambiado de auto a hidden
-      elements.kanbanBoard.style.display = tasks.length === 0 ? "none" : "block";
+      elements.kanbanBoard.style.display =
+        tasks.length === 0 ? "none" : "block";
       elements.kanbanBoard.style.width = "100%";
       elements.kanbanBoard.style.padding = "0";
       elements.kanbanBoard.style.margin = "0";
-      
-      document.querySelectorAll('.kanban-column').forEach(col => {
+
+      document.querySelectorAll(".kanban-column").forEach((col) => {
         col.style.minWidth = "100%";
         col.style.width = "100%";
         col.style.marginRight = "0";
@@ -400,29 +421,31 @@ export default function setupDashboard() {
         col.style.boxSizing = "border-box";
         col.style.overflow = "hidden"; // Asegurar que no haya overflow en la columna
       });
-      
+
       // Asegurar que solo las task-container tengan scroll
-      document.querySelectorAll('.tasks-container').forEach(container => {
+      document.querySelectorAll(".tasks-container").forEach((container) => {
         container.style.overflowY = "auto";
       });
-      
+
       // Ajustes adicionales para UI en pantallas muy pequeñas
-      if (document.querySelector('.tasks-title-section h1')) {
-        document.querySelector('.tasks-title-section h1').style.fontSize = '1.1rem';
+      if (document.querySelector(".tasks-title-section h1")) {
+        document.querySelector(".tasks-title-section h1").style.fontSize =
+          "1.1rem";
       }
-      
-      if (document.getElementById('task-counter')) {
-        document.getElementById('task-counter').style.fontSize = '0.7rem';
+
+      if (document.getElementById("task-counter")) {
+        document.getElementById("task-counter").style.fontSize = "0.7rem";
       }
     } else if (width <= 768) {
       // Para tabletas y móviles (768px)
       elements.kanbanBoard.style.overflowX = "hidden"; // Cambiado de auto a hidden
-      elements.kanbanBoard.style.display = tasks.length === 0 ? "none" : "block";
+      elements.kanbanBoard.style.display =
+        tasks.length === 0 ? "none" : "block";
       elements.kanbanBoard.style.width = "100%";
       elements.kanbanBoard.style.padding = "0";
       elements.kanbanBoard.style.margin = "0";
-      
-      document.querySelectorAll('.kanban-column').forEach(col => {
+
+      document.querySelectorAll(".kanban-column").forEach((col) => {
         col.style.minWidth = "100%";
         col.style.width = "100%";
         col.style.marginRight = "0";
@@ -431,19 +454,20 @@ export default function setupDashboard() {
         col.style.boxSizing = "border-box";
         col.style.overflow = "hidden"; // Asegurar que no haya overflow en la columna
       });
-      
+
       // Asegurar que solo las task-container tengan scroll
-      document.querySelectorAll('.tasks-container').forEach(container => {
+      document.querySelectorAll(".tasks-container").forEach((container) => {
         container.style.overflowY = "auto";
       });
-      
+
       // Ajustes adicionales para UI en tablets
-      if (document.querySelector('.tasks-title-section h1')) {
-        document.querySelector('.tasks-title-section h1').style.fontSize = '1.4rem';
+      if (document.querySelector(".tasks-title-section h1")) {
+        document.querySelector(".tasks-title-section h1").style.fontSize =
+          "1.4rem";
       }
-      
-      if (document.getElementById('task-counter')) {
-        document.getElementById('task-counter').style.fontSize = '0.85rem';
+
+      if (document.getElementById("task-counter")) {
+        document.getElementById("task-counter").style.fontSize = "0.85rem";
       }
     } else if (width <= 1024) {
       // Para pantallas medianas (1024px)
@@ -451,8 +475,8 @@ export default function setupDashboard() {
       elements.kanbanBoard.style.display = tasks.length === 0 ? "none" : "flex";
       elements.kanbanBoard.style.flexWrap = "wrap";
       elements.kanbanBoard.style.gap = "20px";
-      
-      document.querySelectorAll('.kanban-column').forEach(col => {
+
+      document.querySelectorAll(".kanban-column").forEach((col) => {
         col.style.flex = "1 1 300px";
         col.style.minWidth = "300px";
         col.style.marginRight = "0";
@@ -460,80 +484,81 @@ export default function setupDashboard() {
         col.style.padding = "20px";
         col.style.boxSizing = "border-box";
       });
-      
+
       // Restablecer ajustes adicionales
-      if (document.querySelector('.tasks-title-section h1')) {
-        document.querySelector('.tasks-title-section h1').style.fontSize = '1.6rem';
+      if (document.querySelector(".tasks-title-section h1")) {
+        document.querySelector(".tasks-title-section h1").style.fontSize =
+          "1.6rem";
       }
-      
-      if (document.getElementById('task-counter')) {
-        document.getElementById('task-counter').style.fontSize = '0.9rem';
+
+      if (document.getElementById("task-counter")) {
+        document.getElementById("task-counter").style.fontSize = "0.9rem";
       }
     } else {
       // Para pantallas grandes (>1024px)
       elements.kanbanBoard.style.overflowX = "auto";
       elements.kanbanBoard.style.display = tasks.length === 0 ? "none" : "flex";
       elements.kanbanBoard.style.gap = "24px";
-      
-      document.querySelectorAll('.kanban-column').forEach(col => {
+
+      document.querySelectorAll(".kanban-column").forEach((col) => {
         col.style.flex = "1 1 0";
         col.style.minWidth = "320px";
         col.style.marginRight = "0";
         col.style.marginBottom = "0";
         col.style.padding = "24px";
       });
-      
+
       // Restablecer a valores por defecto
-      if (document.querySelector('.tasks-title-section h1')) {
-        document.querySelector('.tasks-title-section h1').style.fontSize = '';
+      if (document.querySelector(".tasks-title-section h1")) {
+        document.querySelector(".tasks-title-section h1").style.fontSize = "";
       }
-      
-      if (document.getElementById('task-counter')) {
-        document.getElementById('task-counter').style.fontSize = '';
+
+      if (document.getElementById("task-counter")) {
+        document.getElementById("task-counter").style.fontSize = "";
       }
     }
-    
+
     // Ajustar el formato de las tarjetas de tareas según el tamaño de pantalla
     adjustTaskCardStyles(window.innerWidth);
   }
-  
+
   /**
    * Ajusta los estilos de las tarjetas de tareas según el tamaño de pantalla
    * @param {number} width - Ancho de la ventana
    */
   function adjustTaskCardStyles(width) {
-    const taskCards = document.querySelectorAll('.task-card');
-    
-    taskCards.forEach(card => {
+    const taskCards = document.querySelectorAll(".task-card");
+
+    taskCards.forEach((card) => {
       if (width <= 320) {
         // Estilos para pantallas muy pequeñas
         card.style.padding = "10px";
         card.style.marginBottom = "8px";
-        if (card.querySelector('.task-title')) {
-          card.querySelector('.task-title').style.fontSize = "0.9rem";
+        if (card.querySelector(".task-title")) {
+          card.querySelector(".task-title").style.fontSize = "0.9rem";
         }
-        if (card.querySelector('.task-description')) {
-          card.querySelector('.task-description').style.fontSize = "0.75rem";
+        if (card.querySelector(".task-description")) {
+          card.querySelector(".task-description").style.fontSize = "0.75rem";
         }
       } else if (width <= 480) {
         // Estilos para móviles
         card.style.padding = "12px";
         card.style.marginBottom = "10px";
-        if (card.querySelector('.task-title')) {
-          card.querySelector('.task-title').style.fontSize = "0.95rem";
+        if (card.querySelector(".task-title")) {
+          card.querySelector(".task-title").style.fontSize = "0.95rem";
         }
-        if (card.querySelector('.task-description')) {
-          card.querySelector('.task-description').style.fontSize = "0.8rem";
+        if (card.querySelector(".task-description")) {
+          card.querySelector(".task-description").style.fontSize = "0.8rem";
         }
       } else {
         // Estilos por defecto para pantallas más grandes
         card.style.padding = "";
         card.style.marginBottom = "";
-        if (card.querySelector('.task-title')) {
-          card.querySelector('.task-title').style.fontSize = "";
+        if (card.querySelector(".task-title")) {
+          card.querySelector(".task-title").style.fontSize = "";
         }
-        if (card.querySelector('.task-description')) {
-          card.querySelector('.task-description').style.fontSize = "";
+        if (card.querySelector(".task-description")) {
+          card.querySelector(".task-description").style.fontSize = "";
         }
       }
     });
@@ -556,7 +581,7 @@ export default function setupDashboard() {
       month: "short",
       day: "numeric",
     });
-    
+
     // Formatear hora si existe
     let formattedTime = "";
     if (task.time) {
@@ -581,7 +606,7 @@ export default function setupDashboard() {
             <line x1="8" y1="2" x2="8" y2="6"></line>
             <line x1="3" y1="10" x2="21" y2="10"></line>
           </svg>
-          ${formattedDate} ${formattedTime ? `- ${formattedTime}` : ''}
+          ${formattedDate} ${formattedTime ? `- ${formattedTime}` : ""}
         </div>
         <div class="task-status-badge">
           ${statusMap[task.status] || task.status}
@@ -654,13 +679,13 @@ export default function setupDashboard() {
     const formattedDate = today.toISOString().split("T")[0];
     document.getElementById("task-date").value = formattedDate;
     document.getElementById("task-date").min = formattedDate;
-    
+
     // Establecer hora por defecto (ahora)
     const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
     document.getElementById("task-time").value = `${hours}:${minutes}`;
-    
+
     // Estado por defecto: 'Por hacer' y deshabilitar el select
     const statusSelect = document.getElementById("task-status");
     statusSelect.value = "Por hacer";
@@ -668,10 +693,10 @@ export default function setupDashboard() {
 
     // Limpiar mensajes de error
     clearFormErrors();
-    
+
     currentTask = null;
     elements.newTaskModal.style.display = "flex";
-    
+
     // Validar para verificar si el botón debe estar habilitado
     validateForm();
   }
@@ -691,13 +716,13 @@ export default function setupDashboard() {
     const dueDate = new Date(task.date);
     const formattedDate = dueDate.toISOString().split("T")[0];
     document.getElementById("task-date").value = formattedDate;
-    
+
     // Formatear hora si existe, de lo contrario hora actual
     if (task.time) {
       document.getElementById("task-time").value = task.time;
     } else {
-      const hours = String(dueDate.getHours()).padStart(2, '0');
-      const minutes = String(dueDate.getMinutes()).padStart(2, '0');
+      const hours = String(dueDate.getHours()).padStart(2, "0");
+      const minutes = String(dueDate.getMinutes()).padStart(2, "0");
       document.getElementById("task-time").value = `${hours}:${minutes}`;
     }
 
@@ -705,15 +730,15 @@ export default function setupDashboard() {
     const statusSelect = document.getElementById("task-status");
     statusSelect.disabled = false;
     statusSelect.value = task.status;
-    
+
     document.getElementById("task-id").value = task._id;
 
     // Limpiar mensajes de error
     clearFormErrors();
-    
+
     currentTask = task;
     elements.newTaskModal.style.display = "flex";
-    
+
     // Validar para verificar si el botón debe estar habilitado
     validateForm();
   }
@@ -737,14 +762,14 @@ export default function setupDashboard() {
     const date = document.getElementById("task-date");
     const time = document.getElementById("task-time");
     const status = document.getElementById("task-status");
-    
+
     // Agregar event listeners para validación en tiempo real
-    [title, detail, date, time, status].forEach(input => {
+    [title, detail, date, time, status].forEach((input) => {
       input.addEventListener("input", validateForm);
       input.addEventListener("blur", validateForm);
     });
   }
-  
+
   /**
    * Valida el formulario completo y actualiza la UI
    */
@@ -754,45 +779,45 @@ export default function setupDashboard() {
     const date = document.getElementById("task-date").value;
     const time = document.getElementById("task-time").value;
     const status = document.getElementById("task-status").value;
-    
+
     const errors = {};
-    
+
     // Validación de título
     if (!title) {
       errors.title = "Completa este campo";
     } else if (title.length > 50) {
       errors.title = "Máx. 50 caracteres";
     }
-    
+
     // Validación de detalle (opcional)
     if (detail && detail.length > 500) {
       errors.detail = "Máx. 500 caracteres";
     }
-    
+
     // Validación de fecha
     if (!date) {
       errors.date = "Completa este campo";
     }
-    
+
     // Validación de hora
     if (!time) {
       errors.time = "Completa este campo";
     }
-    
+
     // Validación de estado
     if (!status) {
       errors.status = "Completa este campo";
     }
-    
+
     // Mostrar errores
     showFormErrors(errors);
-    
+
     // Deshabilitar botón si hay errores
     elements.submitButton.disabled = Object.keys(errors).length > 0;
-    
+
     return Object.keys(errors).length === 0;
   }
-  
+
   /**
    * Muestra los errores de validación en la UI
    * @param {Object} errors - Objeto con errores por campo
@@ -800,14 +825,14 @@ export default function setupDashboard() {
   function showFormErrors(errors) {
     // Limpiar mensajes de error previos
     clearFormErrors();
-    
+
     // Mensaje general en aria-live
     if (errors.general && errorLiveRegion) {
       errorLiveRegion.textContent = errors.general;
     }
-    
+
     // Mostrar errores por campo
-    ["title", "detail", "date", "time", "status"].forEach(field => {
+    ["title", "detail", "date", "time", "status"].forEach((field) => {
       if (errors[field]) {
         const input = document.getElementById(`task-${field}`);
         if (input) {
@@ -824,7 +849,7 @@ export default function setupDashboard() {
       }
     });
   }
-  
+
   /**
    * Limpia todos los mensajes de error del formulario
    */
@@ -833,14 +858,14 @@ export default function setupDashboard() {
     if (errorLiveRegion) {
       errorLiveRegion.textContent = "";
     }
-    
+
     // Limpiar errores individuales
-    document.querySelectorAll(".field-error").forEach(el => {
+    document.querySelectorAll(".field-error").forEach((el) => {
       el.textContent = "";
       el.style.display = "none";
     });
   }
-  
+
   /**
    * Muestra un toast con un mensaje al usuario
    * @param {string} message - Mensaje a mostrar
@@ -848,34 +873,34 @@ export default function setupDashboard() {
    */
   function showToast(message, type = "info") {
     // Buscar si ya existe un toast container
-    let toastContainer = document.querySelector('.toast-container');
-    
+    let toastContainer = document.querySelector(".toast-container");
+
     // Si no existe, crear uno nuevo
     if (!toastContainer) {
-      toastContainer = document.createElement('div');
-      toastContainer.className = 'toast-container';
+      toastContainer = document.createElement("div");
+      toastContainer.className = "toast-container";
       document.body.appendChild(toastContainer);
     }
-    
+
     // Crear el toast
-    const toast = document.createElement('div');
+    const toast = document.createElement("div");
     toast.className = `toast toast-${type}`;
     toast.textContent = message;
-    
+
     // Añadir el toast al container
     toastContainer.appendChild(toast);
-    
+
     // Mostrar con animación
     setTimeout(() => {
-      toast.classList.add('show');
+      toast.classList.add("show");
     }, 10);
-    
+
     // Remover después de 5 segundos
     setTimeout(() => {
-      toast.classList.remove('show');
+      toast.classList.remove("show");
       setTimeout(() => {
         toast.remove();
-        
+
         // Si no hay más toasts, remover el container
         if (toastContainer.children.length === 0) {
           toastContainer.remove();
@@ -883,7 +908,7 @@ export default function setupDashboard() {
       }, 300);
     }, 5000);
   }
-  
+
   /**
    * Muestra un spinner durante operaciones asíncronas
    * @param {boolean} show - Indica si se debe mostrar u ocultar el spinner
@@ -897,12 +922,12 @@ export default function setupDashboard() {
       spinner.innerHTML = `<div class="spinner"></div>`;
       elements.taskForm.parentElement.appendChild(spinner);
     }
-    
+
     if (spinner) {
       spinner.style.display = show ? "flex" : "none";
     }
   }
-  
+
   /**
    * Oculta el spinner
    */
@@ -936,7 +961,7 @@ export default function setupDashboard() {
     try {
       // Mostrar spinner durante la operación
       showSpinner();
-      
+
       if (taskId) {
         // Actualizar tarea existente
         await updateTask(taskId, formData);
@@ -945,38 +970,38 @@ export default function setupDashboard() {
         // Crear nueva tarea
         serverResponse = await createTask(formData);
         showToast("Tarea creada correctamente", "success");
-        
+
         // Si tenemos la respuesta del servidor, añadir la tarea localmente
         if (serverResponse && serverResponse._id) {
           tasks.push(serverResponse);
         }
       }
-      
+
       // Ocultar spinner
       hideSpinner();
-      
+
       // Cerrar modal
       closeModal();
-      
+
       // Si no tenemos la tarea del servidor o estamos editando, cargar todas de nuevo
       if (taskId || !serverResponse || !serverResponse._id) {
         await loadTasks();
       }
-      
+
       // Renderizar las tareas
       renderTasks();
     } catch (error) {
       console.error("Error saving task:", error);
-      
+
       // Ocultar spinner
       hideSpinner();
-      
+
       // Mostrar mensaje de error
       showToast("No pudimos guardar tu tarea, inténtalo de nuevo", "error");
-      
+
       // En modo desarrollo, mostrar detalles en la consola
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Detalles del error:', error);
+      if (process.env.NODE_ENV === "development") {
+        console.log("Detalles del error:", error);
       }
     }
   }
@@ -989,16 +1014,16 @@ export default function setupDashboard() {
     try {
       // Simular un delay mínimo para el spinner (como máximo 2 segundos)
       const startTime = Date.now();
-      
+
       // Crear la tarea en el backend
       const response = await post("/tasks", taskData);
-      
+
       // Garantizar que el spinner se muestre por al menos 300ms para transiciones suaves
       const elapsedTime = Date.now() - startTime;
       if (elapsedTime < 300) {
-        await new Promise(resolve => setTimeout(resolve, 300 - elapsedTime));
+        await new Promise((resolve) => setTimeout(resolve, 300 - elapsedTime));
       }
-      
+
       return response;
     } catch (error) {
       console.error("Error creating task:", error);
@@ -1032,32 +1057,32 @@ export default function setupDashboard() {
     try {
       // Mostrar spinner mientras se elimina
       showSpinner();
-      
+
       // Llamar al API para eliminar
       await del(`/tasks/${taskId}`);
-      
+
       // Ocultar spinner
       hideSpinner();
-      
+
       // Usar alert en lugar de toast para este caso específico
       // (no es la mejor práctica UX, pero soluciona el problema visual)
-      alert("Tarea eliminada correctamente");
-      
+      showToast("Tarea eliminada correctamente", "success");
+
       // Actualizar el estado local sin tener que recargar del servidor
-      tasks = tasks.filter(task => task._id !== taskId);
-      
+      tasks = tasks.filter((task) => task._id !== taskId);
+
       // Actualizar la UI
       updateTaskCounter();
       renderTasks();
     } catch (error) {
       console.error("Error deleting task:", error);
-      
+
       // Ocultar spinner
       hideSpinner();
-      
+
       // Mostrar error con alert
-      alert("Error al eliminar la tarea. Inténtalo de nuevo.");
-      
+      showToast("Error al eliminar la tarea. Inténtalo de nuevo.", "error");
+
       // En caso de error grave, recargar todas las tareas
       try {
         await loadTasks();
