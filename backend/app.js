@@ -64,6 +64,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 app.use(passport.initialize());
 app.use(passport.session());
