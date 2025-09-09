@@ -124,7 +124,7 @@ export default function setupReset() {
           // Redirect to login page after brief delay
           setTimeout(() => {
             navigateTo("login");
-          }, 500);
+          }, 2000);
         } else {
           // Stop spinner and enable button
           if (buttonText && spinner && resetButton) {
@@ -193,7 +193,8 @@ export default function setupReset() {
     // Skip validation if empty
     if (!password) {
       newPasswordError.style.display = "none";
-      document.getElementById("password-requirements").style.display = "none";
+      const requirementsEl = document.getElementById("password-requirements");
+      if (requirementsEl) requirementsEl.style.display = "none";
       updateButtonState();
       return false;
     }
@@ -226,8 +227,7 @@ export default function setupReset() {
     // Update requirements visibility
     const requirementsEl = document.getElementById("password-requirements");
     if (requirementsEl) {
-      requirementsEl.style.display =
-        password.length > 0 && !isValid ? "block" : "none";
+      requirementsEl.style.display = password.length > 0 && !isValid ? "block" : "none";
     }
 
     updateButtonState();
@@ -274,16 +274,10 @@ export default function setupReset() {
       /[a-z]/.test(newPasswordInput.value) &&
       /\d/.test(newPasswordInput.value);
 
-    const passwordsMatch =
-      newPasswordInput.value === confirmPasswordInput.value;
-    const isBothFieldsFilled =
-      newPasswordInput.value && confirmPasswordInput.value;
+    const passwordsMatch = newPasswordInput.value === confirmPasswordInput.value;
+    const isBothFieldsFilled = newPasswordInput.value && confirmPasswordInput.value;
 
-    resetButton.disabled = !(
-      isNewPasswordValid &&
-      passwordsMatch &&
-      isBothFieldsFilled
-    );
+    resetButton.disabled = !(isNewPasswordValid && passwordsMatch && isBothFieldsFilled);
   }
 
   // Show toast notification
@@ -328,28 +322,6 @@ export default function setupReset() {
           e.preventDefault();
           navigateTo("recovery");
         });
-      }
-    } else {
-      // Create error container if error message element doesn't exist
-      const formSection = document.querySelector(".form-section");
-      if (formSection) {
-        const errorContainer = document.createElement("div");
-        errorContainer.className = "alert alert-error";
-        errorContainer.setAttribute("aria-live", "assertive");
-        errorContainer.innerHTML = `
-          <p>${message}</p>
-          <p>Please go to the <a href="#" id="go-recovery-alt">password recovery page</a> to request a new link.</p>
-        `;
-        formSection.appendChild(errorContainer);
-
-        // Add event listener to recovery link
-        const goRecoveryAlt = document.getElementById("go-recovery-alt");
-        if (goRecoveryAlt) {
-          goRecoveryAlt.addEventListener("click", (e) => {
-            e.preventDefault();
-            navigateTo("recovery");
-          });
-        }
       }
     }
 

@@ -25,9 +25,9 @@ class EmailService {
     }
   }
 
-  async sendPasswordResetEmail(email, resetToken) {
+ async sendPasswordResetEmail(email, resetToken) {
     const resetUrl = `${process.env.FRONTEND_URL}/reset?token=${resetToken}`;
-
+    
     const mailOptions = {
         from: process.env.EMAIL_USER,
         to: email,
@@ -36,14 +36,12 @@ class EmailService {
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                 <h1 style="color: #4a6ee0;">Recuperación de Contraseña</h1>
                 <p>Has solicitado restablecer tu contraseña en TidyTasks.</p>
-                <p>Haz clic en el siguiente botón para crear una nueva contraseña:</p>
+                <p>Haz clic en el siguiente enlace para crear una nueva contraseña:</p>
                 <a href="${resetUrl}" style="display: inline-block; padding: 12px 24px; background-color: #4a6ee0; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">Restablecer Contraseña</a>
                 <p style="margin-top: 20px;">Este enlace expirará en 1 hora por seguridad.</p>
                 <p>Si no solicitaste este cambio, puedes ignorar este correo.</p>
-                <hr style="margin: 20px 0;">
-                <p style="color: #666; font-size: 12px;">TidyTasks - Organiza tu vida</p>
             </div>
-        `,
+        `
     };
 
     try {
