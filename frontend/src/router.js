@@ -36,6 +36,17 @@ export function handleRouting() {
   };
   
   const viewName = routeMap[route] || 'login';
+  
+  // Verificación especial para reset - debe tener token
+  if (viewName === 'reset') {
+    const token = queryParams.get('token');
+    if (!token) {
+      console.warn('Reset route accessed without token, redirecting to recovery');
+      navigateTo('recovery');
+      return;
+    }
+  }
+  
   navigateTo(viewName);
 }
 

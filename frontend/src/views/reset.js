@@ -1,7 +1,7 @@
 import { resetPassword } from "../services/authService.js";
-import { navigateTo } from "../router.js";
+import { navigate } from "../router.js";
 
-const MIN_SPINNER_DURATION = 700; // Minimum time to show spinner in ms
+const MIN_SPINNER_DURATION = 700;
 
 export default function setupReset() {
   console.log("Reset page setup initialized");
@@ -14,9 +14,7 @@ export default function setupReset() {
 
   if (!token) {
     console.log("No token found, showing error message");
-    showTokenError(
-      "Invalid or missing reset token. Please request a new password reset link."
-    );
+    showTokenError("Invalid or missing reset token. Please request a new password reset link.");
     return;
   }
 
@@ -40,9 +38,12 @@ export default function setupReset() {
   const newPasswordInput = document.getElementById("new-password");
   const confirmPasswordInput = document.getElementById("confirm-password");
   const newPasswordError = document.getElementById("new-password-error");
-  const confirmPasswordError = document.getElementById(
-    "confirm-password-error"
-  );
+  const confirmPasswordError = document.getElementById("confirm-password-error");
+
+  if (!form) {
+    console.error("Reset form not found");
+    return;
+  }
 
   // Initially hide error and success messages
   if (errorMsg) errorMsg.style.display = "none";
@@ -65,7 +66,7 @@ export default function setupReset() {
   if (goLogin) {
     goLogin.addEventListener("click", (e) => {
       e.preventDefault();
-      navigateTo("login");
+      navigate("login");
     });
   }
 
@@ -73,7 +74,7 @@ export default function setupReset() {
   if (backToLogin) {
     backToLogin.addEventListener("click", (e) => {
       e.preventDefault();
-      navigateTo("login");
+      navigate("login");
     });
   }
 
@@ -123,7 +124,7 @@ export default function setupReset() {
 
           // Redirect to login page after brief delay
           setTimeout(() => {
-            navigateTo("login");
+            navigate("login");
           }, 2000);
         } else {
           // Stop spinner and enable button
@@ -141,9 +142,7 @@ export default function setupReset() {
               response.message.includes("invalid") ||
               response.message.includes("token"))
           ) {
-            showTokenError(
-              "Your password reset link has expired or is invalid. Please request a new one."
-            );
+            showTokenError("Your password reset link has expired or is invalid. Please request a new one.");
             return;
           }
 
@@ -170,8 +169,7 @@ export default function setupReset() {
           resetButton.disabled = false;
         }
 
-        const errorMessage =
-          error.message || "An error occurred. Please try again later.";
+        const errorMessage = error.message || "An error occurred. Please try again later.";
 
         showToast(errorMessage, "error");
 
@@ -236,8 +234,7 @@ export default function setupReset() {
 
   // Validate passwords match
   function validatePasswords() {
-    if (!newPasswordInput || !confirmPasswordInput || !confirmPasswordError)
-      return true;
+    if (!newPasswordInput || !confirmPasswordInput || !confirmPasswordError) return true;
 
     const password = newPasswordInput.value;
     const confirmPassword = confirmPasswordInput.value;
@@ -320,7 +317,7 @@ export default function setupReset() {
       if (goRecovery) {
         goRecovery.addEventListener("click", (e) => {
           e.preventDefault();
-          navigateTo("recovery");
+          navigate("recovery");
         });
       }
     }
