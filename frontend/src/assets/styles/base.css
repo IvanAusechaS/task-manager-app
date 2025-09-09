@@ -21,6 +21,8 @@ body {
   align-items: center;
   justify-content: center;
   padding: var(--spacing-lg);
+  padding-top: 80px; /* Espacio para el header fijo */
+  overflow-x: hidden; /* Evitar scroll horizontal */
 }
 
 /* Responsive Design - Base */

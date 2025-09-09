@@ -1,0 +1,115 @@
+<link rel="stylesheet" href="/assets/styles/forms.css" />
+<link rel="stylesheet" href="/assets/styles/toast.css" />
+<link rel="stylesheet" href="/assets/styles/spinners.css" />
+<link rel="stylesheet" href="/assets/styles/logo.css" />
+
+<div class="login-container">
+  <div class="image-section">
+    <img src="/cover.jpg" alt="Image" class="wall-image" />
+  </div>
+
+  <div class="form-section">
+    <div class="logo-container">
+      <img src="/logo-tidytasks.png" alt="TidyTasks Logo" class="app-logo" />
+      <h2 class="logo-text">TidyTasks</h2>
+    </div>
+    <h1>Create your account</h1>
+    <span>Join our task management platform</span>
+
+    <button type="button" class="google-login">
+      <img src="/google-icon.png" alt="Icon" /> Sign up with Google
+    </button>
+
+    <span class="divider">------ or sign up with email ------</span>
+
+    <!-- Toast de notificación -->
+    <div id="toast-notification" class="toast-notification" aria-live="polite">
+      <span id="toast-message"></span>
+    </div>
+
+    <form id="signup-form" method="POST" class="login-form">
+      <div class="form-field">
+        <label class="form-label" for="firstName">First Name</label>
+        <input
+          type="text"
+          id="firstName"
+          name="firstName"
+          placeholder="Enter your first name"
+          required
+        />
+        <div class="tooltip-error" id="firstName-error"></div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="lastName">Last Name</label>
+        <input
+          type="text"
+          id="lastName"
+          name="lastName"
+          placeholder="Enter your last name"
+          required
+        />
+        <div class="tooltip-error" id="lastName-error"></div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="Enter your email"
+          required
+        />
+        <div class="tooltip-error" id="email-error"></div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="age">Age</label>
+        <input
+          type="number"
+          id="age"
+          name="age"
+          placeholder="Enter your age (minimum 13)"
+          min="13"
+          required
+        />
+        <div class="tooltip-error" id="age-error"></div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Min. 8 chars with uppercase, number & special"
+          required
+          minlength="8"
+        />
+        <div class="tooltip-error" id="password-error"></div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="confirmPassword">Confirm Password</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          name="confirmPassword"
+          placeholder="Confirm your password"
+          required
+          minlength="8"
+        />
+        <div class="tooltip-error" id="confirmPassword-error"></div>
+      </div>
+      <button type="submit" id="signup-button" class="login-button" disabled>
+        <span id="button-text">Create Account</span>
+        <div id="spinner" class="spinner hidden"></div>
+      </button>
+    </form>
+
+    <div class="sign-up">
+      <span>Already have an account? <a href="#" id="go-login">Log in</a></span>
+    </div>
+  </div>
+</div>
