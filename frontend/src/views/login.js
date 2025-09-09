@@ -260,7 +260,7 @@ export default function setupLogin() {
   // Botón de login con Google
   document.querySelector(".google-login").addEventListener("click", () => {
     // URL limpia sin parámetros adicionales
-    const googleAuthUrl = "https://task-manager-app-aa92.onrender.com/api/auth/google";
+    const googleAuthUrl = "https://task-manager-app-rmbc.onrender.com/api/auth/google";
 
     // Guardar timestamp para verificar autenticación reciente
     localStorage.setItem("google_auth_attempt", Date.now().toString());

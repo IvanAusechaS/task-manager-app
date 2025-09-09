@@ -6,7 +6,7 @@
 import { post } from "./api.js";
 
 // Definir la URL base de la API
-const API_BASE_URL = 'https://task-manager-app-aa92.onrender.com';
+const API_BASE_URL = 'https://task-manager-app-rmbc.onrender.com';
 
 /**
  * Log in a user with email and password
