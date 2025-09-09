@@ -3,7 +3,7 @@
  * Handles all HTTP requests to the backend API
  */
 
-const API_URL = "http://localhost:3001/api"; // Using direct URL to backend
+const API_URL = "https://task-manager-app-rmbc.onrender.com"; // Using direct URL to backend
 
 /**
  * Make a GET request to the API
