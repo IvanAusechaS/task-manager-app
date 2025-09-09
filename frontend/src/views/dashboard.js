@@ -4,6 +4,12 @@ import { logout, getCurrentUser } from "../services/authService.js";
 import { get, post, put, del } from "../services/api.js";
 
 export default function setupDashboard() {
+  // Evitar inicialización múltiple
+  if (window.dashboardInitialized) {
+    console.log("Dashboard ya inicializado, saltando...");
+    return;
+  }
+  window.dashboardInitialized = true;
   console.log("Inicializando dashboard...");
 
   // Verificar si el usuario está autenticado
@@ -84,122 +90,109 @@ export default function setupDashboard() {
    * Inicializa el dashboard cargando las tareas
    */
   async function initializeDashboard() {
-    try {
-      console.log("Iniciando inicialización del dashboard");
+  try {
+    console.log("Iniciando inicialización del dashboard");
 
-      // Verificar autenticación antes de continuar
-      if (!localStorage.getItem("token")) {
-        throw new Error("No hay token disponible");
-      }
+    if (!localStorage.getItem("token")) {
+      throw new Error("No hay token disponible");
+    }
 
-      // Intentar cargar tareas
-      await loadTasks();
-      console.log("Tareas cargadas exitosamente");
+    // Cargar tareas
+    await loadTasks();
+    console.log("Tareas cargadas exitosamente");
 
-      // Configurar actualización automática cada 30 segundos
-      setInterval(async () => {
-        try {
-          console.log("Actualizando tareas automáticamente...");
-          const originalTasks = [...tasks]; // Guardar estado actual
-          
-          // Cargar tareas sin mostrar spinner
-          await loadTasks(false);
-          
-          // Renderizar solo si hay cambios
-          if (JSON.stringify(originalTasks) !== JSON.stringify(tasks)) {
-            console.log("Se detectaron cambios en las tareas, actualizando vista...");
-            renderTasks();
-            showToast("Tareas actualizadas", "info");
-          }
-        } catch (error) {
-          console.error("Error en actualización automática:", error);
-          // No mostrar toast para errores en actualizaciones automáticas para no molestar al usuario
+    // IMPORTANTE: Siempre renderizar después de cargar
+    renderTasks();
+    console.log("Dashboard inicializado completamente");
+
+    // Configurar actualización automática cada 30 segundos
+    setInterval(async () => {
+      try {
+        console.log("Actualizando tareas automáticamente...");
+        const originalTasks = [...tasks];
+        
+        await loadTasks(false);
+        
+        if (JSON.stringify(originalTasks) !== JSON.stringify(tasks)) {
+          console.log("Se detectaron cambios en las tareas, actualizando vista...");
+          renderTasks();
+          showToast("Tareas actualizadas", "info");
         }
-      }, 30000);
-
-      // Renderizar las tareas
-      renderTasks();
-      console.log("Dashboard inicializado completamente");
-    } catch (error) {
-      console.error("Error initializing dashboard:", error);
-
-      // Si es un error de autenticación, intentar redirigir a login
-      if (
-        error.message.includes("token") ||
-        error.message.includes("Authentication")
-      ) {
-        console.log(
-          "Error de autenticación en inicialización, redirigiendo a login"
-        );
-        alert("Por favor, inicia sesión para acceder al dashboard.");
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        setTimeout(() => navigateTo("login"), 300);
-      } else {
-        // Para otros errores, mostrar mensaje pero permitir continuar
-        alert(
-          "Hubo un problema al cargar tus tareas. Algunas funcionalidades podrían no estar disponibles."
-        );
-
-        // Renderizar interfaz vacía
-        tasks = [];
-        renderTasks();
+      } catch (error) {
+        console.error("Error en actualización automática:", error);
       }
+    }, 30000);
+
+  } catch (error) {
+    console.error("Error initializing dashboard:", error);
+
+    if (
+      error.message.includes("token") ||
+      error.message.includes("Authentication")
+    ) {
+      console.log("Error de autenticación en inicialización, redirigiendo a login");
+      alert("Por favor, inicia sesión para acceder al dashboard.");
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setTimeout(() => navigateTo("login"), 300);
+    } else {
+      alert("Hubo un problema al cargar tus tareas. Algunas funcionalidades podrían no estar disponibles.");
+      
+      // IMPORTANTE: Renderizar interfaz vacía incluso en caso de error
+      tasks = [];
+      updateTaskCounter();
+      renderTasks();
     }
   }
+}
 
   /**
    * Carga todas las tareas del usuario desde el servidor
    * @param {boolean} showLoadingIndicator - Indica si se debe mostrar el spinner (por defecto true)
    */
   async function loadTasks(showLoadingIndicator = true) {
-    try {
-      console.log("Cargando tareas del usuario...");
+  try {
+    console.log("Cargando tareas del usuario...");
 
-      // Verificar nuevamente si el token existe antes de hacer la solicitud
-      if (!localStorage.getItem("token")) {
-        console.error("No hay token disponible para cargar tareas");
-        throw new Error("No hay token de autenticación");
-      }
+    if (!localStorage.getItem("token")) {
+      console.error("No hay token disponible para cargar tareas");
+      throw new Error("No hay token de autenticación");
+    }
 
-      // Mostrar spinner si se requiere
-      if (showLoadingIndicator) {
-        showSpinner();
-      }
+    if (showLoadingIndicator) {
+      showSpinner();
+    }
 
-      // Establecer un timeout para garantizar la respuesta en 500ms como máximo
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("Timeout al cargar tareas")), 500)
-      );
-      
-      // Hacer la solicitud al servidor
-      const fetchPromise = get("/tasks");
-      
-      // Utilizar race para tomar lo que termine primero
-      const response = await Promise.race([fetchPromise, timeoutPromise]);
-      console.log("Tareas recibidas:", response);
+    // Hacer la solicitud directamente sin timeout por ahora
+    const response = await get("/tasks");
+    console.log("Respuesta completa del servidor:", response);
+    console.log("Tipo de respuesta:", typeof response);
+    console.log("¿Tiene propiedad tasks?:", response.hasOwnProperty('tasks'));
+    
+    if (showLoadingIndicator) {
+      hideSpinner();
+    }
 
-      // Ocultar spinner si se mostró
-      if (showLoadingIndicator) {
-        hideSpinner();
-      }
-
-      if (response && response.tasks) {
-        tasks = response.tasks || [];
-        console.log(`Se cargaron ${tasks.length} tareas`);
-        updateTaskCounter();
-      } else {
-        console.warn("La respuesta no contiene tareas:", response);
-        tasks = [];
-        updateTaskCounter();
-      }
-    } catch (error) {
-      console.error("Error loading tasks:", error);
-
-      // Ocultar spinner si se mostró
-      if (showLoadingIndicator) {
-        hideSpinner();
-      }
+    if (response && response.tasks && Array.isArray(response.tasks)) {
+      tasks = response.tasks;
+      console.log(`Se cargaron ${tasks.length} tareas:`, tasks);
+      updateTaskCounter();
+    } else if (response && Array.isArray(response)) {
+      // Por si el backend devuelve directamente el array
+      tasks = response;
+      console.log(`Se cargaron ${tasks.length} tareas (array directo):`, tasks);
+      updateTaskCounter();
+    } else {
+      console.warn("La respuesta no contiene tareas válidas:", response);
+      tasks = [];
+      updateTaskCounter();
+    }
+  } catch (error) {
+    console.error("Error loading tasks:", error);
+    
+    if (showLoadingIndicator) {
+      hideSpinner();
+    }
 
       // Si es un error de autenticación, intentar redirigir a login
       if (
@@ -620,26 +613,22 @@ export default function setupDashboard() {
    * Maneja el logout del usuario
    */
   async function handleLogout() {
-    try {
-      await logout();
-
-      // Mostrar toast de éxito en la página de inicio
-      localStorage.setItem("logout_message", "Sesión cerrada correctamente");
-
-      // Redirigir a la página de inicio
-      navigateTo("login");
-    } catch (err) {
-      console.error("Error al cerrar sesión:", err);
-      // Si falla el logout en el servidor, limpiar localStorage de todas formas
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-
-      // Mostrar toast de éxito en la página de inicio
-      localStorage.setItem("logout_message", "Sesión cerrada correctamente");
-
-      navigateTo("login");
-    }
+  try {
+    // Limpiar flag de inicialización
+    window.dashboardInitialized = false;
+    
+    await logout();
+    localStorage.setItem("logout_message", "Sesión cerrada correctamente");
+    navigateTo("login");
+  } catch (err) {
+    console.error("Error al cerrar sesión:", err);
+    window.dashboardInitialized = false;
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.setItem("logout_message", "Sesión cerrada correctamente");
+    navigateTo("login");
   }
+}
 
   /**
    * Abre el modal para crear una nueva tarea
