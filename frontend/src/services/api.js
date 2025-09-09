@@ -3,7 +3,7 @@
  * Handles all HTTP requests to the backend API
  */
 
-const API_URL = "https://task-manager-app-aa92.onrender.com/api"; // Adjusted to match backend PORT in .env
+const API_URL = "https://task-manager-app-rmbc.onrender.com"; // Adjusted to match backend PORT in .env
 
 /**
  * Make a GET request to the API
