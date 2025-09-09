@@ -3,14 +3,26 @@ function getCurrentRoute() {
   const path = window.location.pathname;
   const hash = window.location.hash.slice(1);
   
-  // Si hay hash, úsalo; si no, usa el path
-  return hash || path.slice(1) || 'login';
+  // Extraer solo el path sin query parameters
+  const cleanPath = path.split('?')[0].slice(1);
+  const cleanHash = hash.split('?')[0];
+  
+  return cleanHash || cleanPath || 'login';
+}
+
+// Función para obtener query parameters
+function getQueryParams() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams;
 }
 
 // Función para manejar las rutas
 export function handleRouting() {
   const route = getCurrentRoute();
+  const queryParams = getQueryParams();
+  
   console.log('Current route:', route);
+  console.log('Query params:', Object.fromEntries(queryParams));
   
   // Mapeo de rutas
   const routeMap = {
@@ -101,9 +113,8 @@ export async function navigateTo(viewName) {
       });
     }
 
-    // Importa el script asociado a la vista (ej: login.js, signup.js, recovery.js)
+    // Importa el script asociado a la vista
     try {
-      // Intentar cargar el script con el nombre normalizado (primera letra minúscula)
       console.log(`Intentando cargar script: ./views/${fileViewName}.js`);
       const module = await import(`./views/${fileViewName}.js`);
       if (module.default) {
