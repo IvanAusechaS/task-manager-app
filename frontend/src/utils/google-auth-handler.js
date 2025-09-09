@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
             setTimeout(() => {
               // Guardar los datos en sessionStorage para que json-response.html pueda acceder a ellos
               sessionStorage.setItem("google_auth_data", JSON.stringify(data));
-              window.location.href = "/src/views/json-response.html";
+              window.location.href = "/views/json-response.html";
             }, 1000);
           }
 

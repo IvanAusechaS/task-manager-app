@@ -3,7 +3,11 @@
  * Handles all HTTP requests to the backend API
  */
 
-const API_URL = "https://task-manager-app-rmbc.onrender.com"; // Using direct URL to backend
+// Determine API URL based on environment
+const isDevelopment = window.location.hostname === "localhost";
+const API_URL = isDevelopment
+  ? "http://localhost:3001/api"
+  : "https://task-manager-app-rmbc.onrender.com/api"; // Using direct URL to backend in production
 
 /**
  * Make a GET request to the API
