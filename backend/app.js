@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 import connectDB from './config/database.js';
 import authRoutes from './routes/auth.routes.js';
 import taskRoutes from './routes/tasks.routes.js';
+import setupRenderCors from './render-cors.js';
 
 // Configurar path para ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -44,28 +45,20 @@ app.use(session({
     }
 }));
 
-// Configuración mejorada de CORS para soportar tanto desarrollo como producción
-app.use(cors({
-    origin: function(origin, callback) {
-        const allowedOrigins = [
-            'http://localhost:5173',           // Desarrollo local Vite
-            'http://localhost:3001',           // Desarrollo local Express
-            'https://tidytasks-v1.onrender.com' // Frontend en producción (Render)
-        ];
-        
-        // Permitir solicitudes sin origen (como aplicaciones móviles o postman)
-        if (!origin) return callback(null, true);
-        
-        if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
-            callback(null, true);
-        } else {
-            callback(new Error('Origen no permitido por CORS'));
-        }
-    },
+// Aplicar configuración CORS basada en el entorno
+if (process.env.NODE_ENV === 'production') {
+  console.log('Usando configuración CORS para producción (Render)');
+  setupRenderCors(app);
+} else {
+  console.log('Usando configuración CORS para desarrollo');
+  // Configuración CORS para desarrollo
+  app.use(cors({
+    origin: true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
-}));
+  }));
+}
 
 // Middleware
 app.use(express.json());
