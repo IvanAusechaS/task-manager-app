@@ -51,6 +51,7 @@ app.use(cors({
 }));
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 app.use(passport.initialize());
 app.use(passport.session());
