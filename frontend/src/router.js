@@ -1,3 +1,40 @@
+// Función para obtener la ruta actual
+function getCurrentRoute() {
+  const path = window.location.pathname;
+  const hash = window.location.hash.slice(1);
+  
+  // Si hay hash, úsalo; si no, usa el path
+  return hash || path.slice(1) || 'login';
+}
+
+// Función para manejar las rutas
+export function handleRouting() {
+  const route = getCurrentRoute();
+  console.log('Current route:', route);
+  
+  // Mapeo de rutas
+  const routeMap = {
+    '': 'login',
+    'login': 'login',
+    'signup': 'signup', 
+    'recovery': 'recovery',
+    'reset': 'reset',
+    'dashboard': 'dashboard',
+    'auth-callback': 'auth-callback'
+  };
+  
+  const viewName = routeMap[route] || 'login';
+  navigateTo(viewName);
+}
+
+// Función para navegar programáticamente
+export function navigate(route) {
+  // Actualizar la URL
+  history.pushState({}, '', `/${route}`);
+  // Cargar la vista
+  navigateTo(route);
+}
+
 // Función para cargar vistas dinámicamente
 export async function navigateTo(viewName) {
   try {
@@ -83,3 +120,9 @@ export async function navigateTo(viewName) {
     ).innerHTML = `<h2>Error al cargar ${viewName}</h2><p>${error.message}</p>`;
   }
 }
+
+// Escuchar cambios en el historial del navegador
+window.addEventListener('popstate', handleRouting);
+
+// Inicializar el routing cuando se carga la página
+document.addEventListener('DOMContentLoaded', handleRouting);
