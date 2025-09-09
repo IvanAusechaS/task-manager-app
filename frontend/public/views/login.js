@@ -265,7 +265,7 @@ export default function setupLogin() {
     // Guardar timestamp para verificar autenticación reciente
     localStorage.setItem("google_auth_attempt", Date.now().toString());
 
-    // Crear ventana de autenticación
+    // Crear ventana de autenticación.
     const authWindow = window.open(
         googleAuthUrl,
         "googleAuth",
