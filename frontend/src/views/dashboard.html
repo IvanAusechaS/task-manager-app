@@ -141,6 +141,7 @@
       <button id="close-modal" class="close-modal">&times;</button>
     </div>
     <form id="task-form">
+      <div id="form-error-live" class="form-error-live" aria-live="polite"></div>
       <div class="form-group">
         <label for="task-title">Title</label>
         <input
@@ -162,6 +163,10 @@
       <div class="form-group">
         <label for="task-date">Due date</label>
         <input type="date" id="task-date" name="date" required />
+      </div>
+      <div class="form-group">
+        <label for="task-time">Due time</label>
+        <input type="time" id="task-time" name="time" required />
       </div>
       <div class="form-group">
         <label for="task-status">Status</label>
