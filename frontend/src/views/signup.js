@@ -370,8 +370,8 @@ export default function setupSignup() {
   document.querySelector(".google-login").addEventListener("click", () => {
     // URL específica para Google Auth (usar la URL correcta según el entorno)
     const isProduction = window.location.hostname !== "localhost";
-    const baseUrl = isProduction 
-      ? "https://task-manager-backend-5y00.onrender.com" 
+    const baseUrl = isProduction
+      ? "https://task-manager-app-rmbc.onrender.com"
       : "http://localhost:3001";
     const googleAuthUrl = `${baseUrl}/api/auth/google`;
 
@@ -382,26 +382,26 @@ export default function setupSignup() {
 
     // Usar el nuevo método seguro para iniciar la autenticación
     const auth = initiateGoogleAuth(googleAuthUrl);
-    
+
     // Configurar el verificador de estado
     auth.checkAuthStatus((error, user) => {
       // Restablecer botón en cualquier caso
       buttonText.textContent = "Sign Up";
       spinner.classList.add("hidden");
       submitButton.disabled = false;
-      
+
       if (error) {
         console.error("Error de autenticación con Google:", error);
         showToast("La autenticación con Google no pudo completarse", true);
         return;
       }
-      
+
       if (user) {
         console.log("Autenticación con Google exitosa");
-        
+
         // Mostrar toast y redirigir al dashboard
         showToast(`¡Bienvenido, ${user.firstName}!`);
-        
+
         // Redirigir al dashboard después de un breve momento
         setTimeout(() => {
           navigateTo("dashboard");
