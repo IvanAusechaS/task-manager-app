@@ -1,0 +1,73 @@
+<link rel="stylesheet" href="/src/assets/styles/forms.css" />
+<link rel="stylesheet" href="/src/assets/styles/toast.css" />
+<link rel="stylesheet" href="/src/assets/styles/spinners.css" />
+<link rel="stylesheet" href="/src/assets/styles/logo.css" />
+
+<div class="login-container">
+  <div class="image-section">
+    <img src="/src/assets/cover.jpg" alt="Image" class="wall-image" />
+  </div>
+
+  <div class="form-section">
+    <div class="logo-container">
+      <img src="/src/assets/logo-tidytasks.png" alt="TidyTasks Logo" class="app-logo" />
+      <h2 class="logo-text">TidyTasks</h2>
+    </div>
+    <h1>Login to your account</h1>
+    <span>See what is going on with your business</span>
+
+    <button type="button" class="google-login">
+      <img src="/src/assets/google-icon.png" alt="Icon" /> Continue with Google
+    </button>
+
+    <span class="divider">------ or sign in with email ------</span>
+
+    <!-- Toast notification -->
+    <div id="toast-notification" class="toast-notification" aria-live="polite">
+      <span id="toast-message"></span>
+    </div>
+
+    <form id="login-form" method="POST" class="login-form">
+      <div class="form-field">
+        <label class="form-label" for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="Enter your email"
+          required
+        />
+        <div id="email-error" class="tooltip-error"></div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Enter your password"
+          required
+        />
+        <div id="password-error" class="tooltip-error"></div>
+      </div>
+
+      <div class="remember-me">
+        <div>
+          <input type="checkbox" id="remember" name="remember" />
+          <label class="form-label" for="remember">Remember me</label>
+        </div>
+        <a href="#" id="go-recovery">Forgot password?</a>
+      </div>
+
+      <button type="submit" id="login-button" class="login-button" disabled>
+        <span id="button-text">Login</span>
+        <span id="spinner" class="spinner hidden"></span>
+      </button>
+    </form>
+
+    <div class="sign-up">
+      <span>Don't have an account? <a href="#" id="go-signup">Sign up</a></span>
+    </div>
+  </div>
+</div>

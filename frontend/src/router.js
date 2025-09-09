@@ -9,19 +9,19 @@ export async function navigateTo(viewName) {
     // Caso especial para auth-callback
     if (viewName === "auth-callback") {
       // Redireccionar a la página completa, no como una SPA
-      window.location.href = "/src/views/auth-callback.html";
+      window.location.href = "/views/auth-callback.html";
       return;
     }
 
-    // Busca primero con la ruta relativa correcta para desarrollo
+    // Primero intentamos con la ruta de producción (/views)
     let res;
     try {
-      res = await fetch(`/src/views/${fileViewName}.html`);
-      if (!res.ok) throw new Error("Vista no encontrada con ruta relativa");
-    } catch (e) {
-      // Si falla, intenta con ruta absoluta
-      console.log("Intentando con ruta absoluta...");
       res = await fetch(`/views/${fileViewName}.html`);
+      if (!res.ok) throw new Error("Vista no encontrada en ruta de producción");
+    } catch (e) {
+      // Si falla, intenta con ruta de desarrollo
+      console.log("Intentando con ruta de desarrollo...");
+      res = await fetch(`/src/views/${fileViewName}.html`);
     }
 
     if (!res.ok) {
