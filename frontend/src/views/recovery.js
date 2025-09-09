@@ -32,7 +32,7 @@ export default function setupRecovery() {
         setLoadingState(true);
 
         try {
-            const response = await fetch('https://task-manager-app-aa92.onrender.com/api/auth/recover-password', {
+            const response = await fetch('https://task-manager-app-rmbc.onrender.com/api/auth/recover-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
