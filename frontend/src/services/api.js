@@ -3,7 +3,11 @@
  * Handles all HTTP requests to the backend API
  */
 
-const API_URL = "http://localhost:3001/api"; // Using direct URL to backend
+// Determine API URL based on environment
+const isDevelopment = window.location.hostname === "localhost";
+const API_URL = isDevelopment
+  ? "http://localhost:3001/api"
+  : "https://task-manager-backend-5y00.onrender.com/api"; // URL del backend en Render
 
 /**
  * Make a GET request to the API

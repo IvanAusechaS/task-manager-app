@@ -43,8 +43,25 @@ app.use(session({
         maxAge: 24 * 60 * 60 * 1000 // 24 horas
     }
 }));
+
+// Configuración mejorada de CORS para soportar tanto desarrollo como producción
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+    origin: function(origin, callback) {
+        const allowedOrigins = [
+            'http://localhost:5173',           // Desarrollo local Vite
+            'http://localhost:3001',           // Desarrollo local Express
+            'https://tidytasks-v1.onrender.com' // Frontend en producción (Render)
+        ];
+        
+        // Permitir solicitudes sin origen (como aplicaciones móviles o postman)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+            callback(null, true);
+        } else {
+            callback(new Error('Origen no permitido por CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
