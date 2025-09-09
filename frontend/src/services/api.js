@@ -4,7 +4,7 @@
  */
 
 
-const API_URL = "https://task-manager-app-l0ji.onrender.com/api"; 
+const API_URL = "https://task-manager-app-aa92.onrender.com/api"; 
 
 /**
  * Make a GET request to the API
