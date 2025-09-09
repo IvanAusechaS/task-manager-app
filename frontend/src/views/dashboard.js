@@ -25,22 +25,29 @@ export default function setupDashboard() {
   let errorLiveRegion;
 
   // Referencias a elementos del DOM
-  const elements = {
-    userNameDisplay: document.getElementById("user-name"),
-    userAvatarLetter: document.getElementById("user-avatar-letter"),
-    logoutButton: document.getElementById("logout-button"),
-    taskCounter: document.getElementById("task-counter"),
-    emptyState: document.getElementById("empty-state"),
-    kanbanBoard: document.getElementById("kanban-board"),
-    newTaskButton: document.getElementById("new-task-button-container"),
-    newTaskModal: document.getElementById("task-modal"),
-    taskForm: document.getElementById("task-form"),
-    closeModalBtn: document.getElementById("close-modal"),
-    createFirstTaskBtn: document.getElementById("create-first-task"),
-    addNewTaskBtn: document.getElementById("new-task-button"),
-    modalTitle: document.getElementById("modal-title"),
-    submitButton: document.querySelector("#task-form .submit-button")
-  };
+  let elements;
+
+  function initElements() {
+    elements = {
+      userNameDisplay: document.getElementById("user-name"),
+      userAvatarLetter: document.getElementById("user-avatar-letter"),
+      logoutButton: document.getElementById("logout-button"),
+      taskCounter: document.getElementById("task-counter"),
+      emptyState: document.getElementById("empty-state"),
+      kanbanBoard: document.getElementById("kanban-board"),
+      newTaskButton: document.getElementById("new-task-button-container"),
+      newTaskModal: document.getElementById("task-modal"),
+      taskForm: document.getElementById("task-form"),
+      closeModalBtn: document.getElementById("close-modal"),
+      createFirstTaskBtn: document.getElementById("create-first-task"),
+      addNewTaskBtn: document.getElementById("new-task-button"),
+      modalTitle: document.getElementById("modal-title"),
+      submitButton: document.querySelector("#task-form .submit-button")
+    };
+  }
+
+  // Inicializar elementos DOM
+  initElements();
 
   // Mostrar información del usuario
   elements.userNameDisplay.textContent = `${user.firstName || "User"} ${
@@ -236,6 +243,7 @@ export default function setupDashboard() {
     const doingTasks = tasks.filter((task) => task.status === "Haciendo");
     const doneTasks = tasks.filter((task) => task.status === "Hecho");
 
+    // Actualizar contadores en la UI
     document.getElementById("todo-count").textContent = todoTasks.length;
     document.getElementById("doing-count").textContent = doingTasks.length;
     document.getElementById("done-count").textContent = doneTasks.length;
@@ -243,6 +251,15 @@ export default function setupDashboard() {
     document.getElementById("todo-counter").textContent = todoTasks.length;
     document.getElementById("doing-counter").textContent = doingTasks.length;
     document.getElementById("done-counter").textContent = doneTasks.length;
+    
+    // Actualizar contadores en las pestañas móviles
+    const todoTabCount = document.getElementById("todo-tab-count");
+    const doingTabCount = document.getElementById("doing-tab-count");
+    const doneTabCount = document.getElementById("done-tab-count");
+    
+    if (todoTabCount) todoTabCount.textContent = todoTasks.length;
+    if (doingTabCount) doingTabCount.textContent = doingTasks.length;
+    if (doneTabCount) doneTabCount.textContent = doneTasks.length;
   }
 
   /**
@@ -262,7 +279,15 @@ export default function setupDashboard() {
     } else {
       // Mostrar tablero kanban
       elements.emptyState.style.display = "none";
-      elements.kanbanBoard.style.display = "grid";
+      
+      // Ajustar display según el tamaño de pantalla
+      if (window.innerWidth <= 768) {
+        elements.kanbanBoard.style.display = "flex";
+        elements.kanbanBoard.style.flexDirection = "column";
+      } else {
+        elements.kanbanBoard.style.display = "grid";
+      }
+      
       elements.newTaskButton.style.display = "block";
       // Ocultar botón de primera tarea cuando ya existen tareas
       elements.createFirstTaskBtn.style.display = "none";
@@ -286,36 +311,232 @@ export default function setupDashboard() {
       });
     }
     
+    // Configurar tabs móviles
+    setupMobileTabs();
+    
     // Responsividad: vista lista por defecto en pantallas <= 768px
     adjustLayoutForScreenSize();
     
     // Añadir event listener para window resize si no existe ya
     if (!window.hasResizeListener) {
-      window.addEventListener('resize', adjustLayoutForScreenSize);
+      window.addEventListener('resize', function() {
+        // Debounce para no ejecutar constantemente durante el redimensionamiento
+        if (window.resizeTimer) {
+          clearTimeout(window.resizeTimer);
+        }
+        window.resizeTimer = setTimeout(function() {
+          console.log("Adaptando layout para nuevo tamaño: " + window.innerWidth + "px");
+          adjustLayoutForScreenSize();
+        }, 250);
+      });
       window.hasResizeListener = true;
     }
   }
   
   /**
+   * Configura el funcionamiento de las pestañas móviles
+   */
+  function setupMobileTabs() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const kanbanColumns = document.querySelectorAll('.kanban-column');
+    
+    // Mostrar por defecto la columna "To do"
+    if (window.innerWidth <= 768) {
+      // Ocultar todas las columnas primero
+      kanbanColumns.forEach(col => {
+        col.classList.remove('active-column');
+      });
+      
+      // Mostrar solo la columna "To do" por defecto
+      document.querySelector('.todo-column').classList.add('active-column');
+      
+      // Asegurarse de que el primer botón esté activo
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      document.querySelector('.tab-button[data-column="todo"]').classList.add('active');
+    }
+    
+    // Añadir event listeners a las pestañas
+    tabButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        // Actualizar clases activas en los botones
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Obtener la columna a mostrar
+        const columnType = this.getAttribute('data-column');
+        
+        // Ocultar todas las columnas
+        kanbanColumns.forEach(col => {
+          col.classList.remove('active-column');
+        });
+        
+        // Mostrar la columna seleccionada
+        document.querySelector(`.${columnType}-column`).classList.add('active-column');
+      });
+    });
+  }
+
+  /**
    * Ajusta el layout según el tamaño de la pantalla
    */
   function adjustLayoutForScreenSize() {
-    if (window.innerWidth <= 768) {
+    const width = window.innerWidth;
+    
+    // Ajustes para tamaños de pantalla específicos
+    if (width <= 320) {
+      // Para pantallas muy pequeñas (320px)
+      elements.kanbanBoard.style.overflowX = "hidden"; // Cambiado de auto a hidden
+      elements.kanbanBoard.style.display = tasks.length === 0 ? "none" : "block";
+      elements.kanbanBoard.style.width = "100%";
+      elements.kanbanBoard.style.padding = "0";
+      elements.kanbanBoard.style.margin = "0";
+      
+      document.querySelectorAll('.kanban-column').forEach(col => {
+        col.style.minWidth = "100%";
+        col.style.width = "100%";
+        col.style.marginRight = "0";
+        col.style.marginBottom = "15px";
+        col.style.padding = "15px";
+        col.style.boxSizing = "border-box";
+        col.style.overflow = "hidden"; // Asegurar que no haya overflow en la columna
+      });
+      
+      // Asegurar que solo las task-container tengan scroll
+      document.querySelectorAll('.tasks-container').forEach(container => {
+        container.style.overflowY = "auto";
+      });
+      
+      // Ajustes adicionales para UI en pantallas muy pequeñas
+      if (document.querySelector('.tasks-title-section h1')) {
+        document.querySelector('.tasks-title-section h1').style.fontSize = '1.1rem';
+      }
+      
+      if (document.getElementById('task-counter')) {
+        document.getElementById('task-counter').style.fontSize = '0.7rem';
+      }
+    } else if (width <= 768) {
+      // Para tabletas y móviles (768px)
+      elements.kanbanBoard.style.overflowX = "hidden"; // Cambiado de auto a hidden
+      elements.kanbanBoard.style.display = tasks.length === 0 ? "none" : "block";
+      elements.kanbanBoard.style.width = "100%";
+      elements.kanbanBoard.style.padding = "0";
+      elements.kanbanBoard.style.margin = "0";
+      
+      document.querySelectorAll('.kanban-column').forEach(col => {
+        col.style.minWidth = "100%";
+        col.style.width = "100%";
+        col.style.marginRight = "0";
+        col.style.marginBottom = "15px";
+        col.style.padding = "15px";
+        col.style.boxSizing = "border-box";
+        col.style.overflow = "hidden"; // Asegurar que no haya overflow en la columna
+      });
+      
+      // Asegurar que solo las task-container tengan scroll
+      document.querySelectorAll('.tasks-container').forEach(container => {
+        container.style.overflowY = "auto";
+      });
+      
+      // Ajustes adicionales para UI en tablets
+      if (document.querySelector('.tasks-title-section h1')) {
+        document.querySelector('.tasks-title-section h1').style.fontSize = '1.4rem';
+      }
+      
+      if (document.getElementById('task-counter')) {
+        document.getElementById('task-counter').style.fontSize = '0.85rem';
+      }
+    } else if (width <= 1024) {
+      // Para pantallas medianas (1024px)
       elements.kanbanBoard.style.overflowX = "auto";
       elements.kanbanBoard.style.display = tasks.length === 0 ? "none" : "flex";
-      elements.kanbanBoard.style.flexDirection = "row";
+      elements.kanbanBoard.style.flexWrap = "wrap";
+      elements.kanbanBoard.style.gap = "20px";
+      
       document.querySelectorAll('.kanban-column').forEach(col => {
-        col.style.minWidth = "260px";
-        col.style.marginRight = "12px";
+        col.style.flex = "1 1 300px";
+        col.style.minWidth = "300px";
+        col.style.marginRight = "0";
+        col.style.marginBottom = "20px";
+        col.style.padding = "20px";
+        col.style.boxSizing = "border-box";
       });
+      
+      // Restablecer ajustes adicionales
+      if (document.querySelector('.tasks-title-section h1')) {
+        document.querySelector('.tasks-title-section h1').style.fontSize = '1.6rem';
+      }
+      
+      if (document.getElementById('task-counter')) {
+        document.getElementById('task-counter').style.fontSize = '0.9rem';
+      }
     } else {
-      elements.kanbanBoard.style.overflowX = "unset";
-      elements.kanbanBoard.style.display = tasks.length === 0 ? "none" : "grid";
+      // Para pantallas grandes (>1024px)
+      elements.kanbanBoard.style.overflowX = "auto";
+      elements.kanbanBoard.style.display = tasks.length === 0 ? "none" : "flex";
+      elements.kanbanBoard.style.gap = "24px";
+      
       document.querySelectorAll('.kanban-column').forEach(col => {
-        col.style.minWidth = "";
-        col.style.marginRight = "";
+        col.style.flex = "1 1 0";
+        col.style.minWidth = "320px";
+        col.style.marginRight = "0";
+        col.style.marginBottom = "0";
+        col.style.padding = "24px";
       });
+      
+      // Restablecer a valores por defecto
+      if (document.querySelector('.tasks-title-section h1')) {
+        document.querySelector('.tasks-title-section h1').style.fontSize = '';
+      }
+      
+      if (document.getElementById('task-counter')) {
+        document.getElementById('task-counter').style.fontSize = '';
+      }
     }
+    
+    // Ajustar el formato de las tarjetas de tareas según el tamaño de pantalla
+    adjustTaskCardStyles(window.innerWidth);
+  }
+  
+  /**
+   * Ajusta los estilos de las tarjetas de tareas según el tamaño de pantalla
+   * @param {number} width - Ancho de la ventana
+   */
+  function adjustTaskCardStyles(width) {
+    const taskCards = document.querySelectorAll('.task-card');
+    
+    taskCards.forEach(card => {
+      if (width <= 320) {
+        // Estilos para pantallas muy pequeñas
+        card.style.padding = "10px";
+        card.style.marginBottom = "8px";
+        if (card.querySelector('.task-title')) {
+          card.querySelector('.task-title').style.fontSize = "0.9rem";
+        }
+        if (card.querySelector('.task-description')) {
+          card.querySelector('.task-description').style.fontSize = "0.75rem";
+        }
+      } else if (width <= 480) {
+        // Estilos para móviles
+        card.style.padding = "12px";
+        card.style.marginBottom = "10px";
+        if (card.querySelector('.task-title')) {
+          card.querySelector('.task-title').style.fontSize = "0.95rem";
+        }
+        if (card.querySelector('.task-description')) {
+          card.querySelector('.task-description').style.fontSize = "0.8rem";
+        }
+      } else {
+        // Estilos por defecto para pantallas más grandes
+        card.style.padding = "";
+        card.style.marginBottom = "";
+        if (card.querySelector('.task-title')) {
+          card.querySelector('.task-title').style.fontSize = "";
+        }
+        if (card.querySelector('.task-description')) {
+          card.querySelector('.task-description').style.fontSize = "";
+        }
+      }
+    });
   }
 
   /**
