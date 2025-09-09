@@ -14,7 +14,7 @@ import taskRoutes from './routes/tasks.routes.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const allowedOrigins = [
-  'https://tidyytasks.vercel.app',
+  'https://tidytaskv1.vercel.app',
   'http://localhost:3001'
 ];
 
