@@ -180,6 +180,13 @@ class AuthController {
     }
   }
 
+  /**
+   * Handle Google OAuth callback
+   * Generates a JWT token for authenticated Google users and redirects to frontend
+   * @param {Object} req - Express request object containing Google user data
+   * @param {Object} res - Express response object
+   * @returns {void} Redirects user to frontend with authentication data
+   */
   async googleCallback(req, res) {
     try {
       const user = req.user;
@@ -328,7 +335,14 @@ class AuthController {
       });
     }
   }
-
+  /**
+   * Handle password recovery request
+   * Generates a password reset token and sends recovery email
+   * Always responds with a generic message for security reasons
+   * @param {Object} req - Express request object containing email
+   * @param {Object} res - Express response object
+   * @returns {Object} Success message (generic)
+   */
   async resetPassword(req, res) {
     try {
       await newPasswordSchema.validate(req.body);

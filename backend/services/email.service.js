@@ -25,6 +25,13 @@ class EmailService {
     }
   }
 
+  /**
+  * Send a password reset email with a secure link
+  * @async
+  * @param {string} email - Recipient's email address
+  * @param {string} resetToken - Unique token to reset the password
+  * @returns {Promise<boolean>} Returns true if the email was sent (real or simulated), false otherwise
+  */
  async sendPasswordResetEmail(email, resetToken) {
     const resetUrl = `${process.env.FRONTEND_URL}/reset?token=${resetToken}`;
     
